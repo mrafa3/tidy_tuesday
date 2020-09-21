@@ -13,6 +13,6 @@ Some highlights:
 
 ## Visualization  
 
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week38/graphics/bottom_10_viz.png)
 
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week38/graphics/top_10_viz.png)
