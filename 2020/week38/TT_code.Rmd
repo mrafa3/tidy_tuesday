@@ -1,0 +1,166 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(rvest)
+library(magrittr)
+```
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 38)
+kids <- tuesdata$kids
+```
+
+# EDA  
+
+```{r glimpse, include=TRUE}
+kids %>% 
+  glimpse()
+```
+
+```{r summary, include=TRUE}
+kids %>% 
+  summary()
+```
+
+```{r}
+kids %>% 
+  distinct(variable)
+```
+
+**PK12ed**: Public spending on elementary and secondary education by state and year, in $1,000s. Data are from the Census Bureau's annual State and Local Government Finance Survey, expenditure variable E12 less private revenues from School Lunch (A09), School Tuition (A10), and Other Elementary-Secondary Education (A12). Data include public prekindergarten spending by school districts, including federal Head Start grants to school districts.
+
+```{r fig.height=6.2}
+kids %>% 
+  filter(variable == 'PK12ed') %>% 
+  ggplot(.) + 
+  geom_histogram(aes(x=inf_adj_perchild)) + 
+  ggtitle('Distribution of PK12ed')
+```
+
+```{r}
+kids %>% 
+  filter(variable == 'PK12ed') %>% 
+  arrange(-inf_adj_perchild)
+```
+
+
+
+```{r url_scrape, include=TRUE}
+url <- 'https://en.wikipedia.org/wiki/List_of_United_States_governors'
+
+governors <- 
+  url %>% 
+  read_html() %>% 
+  html_nodes(xpath='//*[@id="mw-content-text"]/div[1]/table[1]') %>% 
+  html_table(fill = TRUE)
+
+governors <- data.frame(governors) %>% 
+  select(1, 3, 5) %>% 
+  slice(-1) %>% 
+  rename(state = Democratic..See.Tfd...24.....Republican..See.Tfd...26.,
+         name = Democratic..See.Tfd...24.....Republican..See.Tfd...26..2,
+         party = Democratic..See.Tfd...24.....Republican..See.Tfd...26..4)
+
+dc_governor <- 
+  url %>% 
+  read_html() %>% 
+  html_nodes(xpath='//*[@id="mw-content-text"]/div[1]/table[3]') %>% 
+  html_table(fill = TRUE)
+
+dc_governor <- data.frame(dc_governor) %>% 
+  rename(state = Democratic..See.Tfd...1.,
+         name = Democratic..See.Tfd...1..2,
+         party = Democratic..See.Tfd...1..4)
+
+governors <- bind_rows(governors, dc_governor)
+```
+
+```{r recoding, include=TRUE}
+governors %<>% 
+  mutate(party = recode(party,
+                        'Democratic–Farmer–Labor' = 'Democratic',
+                        'Republican[note 1]' = 'Republican'))
+```
+
+```{r make_kids_2016, include=TRUE}
+kids_2016 <- kids %>% 
+  filter(variable == 'PK12ed',
+         year == 2016) %>% 
+  left_join(x=.,
+            y=governors,
+            by='state')
+```
+
+```{r party_cols, include=TRUE}
+party_cols <- c('Republican' = 'red1',
+                'Democratic' = 'blue1')
+```
+
+```{r top_10_viz, include=TRUE, fig.height=6.2}
+(top_10_viz <- kids_2016 %>% 
+  arrange(-inf_adj_perchild) %>% 
+  slice(1:10) %>% 
+  ggplot(.) + 
+  geom_col(aes(x=inf_adj_perchild,
+               y=reorder(state, inf_adj_perchild),
+               fill=party)) + 
+  geom_text(aes(label=round(inf_adj_perchild, 1),
+                x=inf_adj_perchild, 
+                y=reorder(state, inf_adj_perchild)), 
+            vjust=0.5, 
+            size = 4, 
+            position = position_stack(vjust = 0.5),
+            color='grey98',
+            fontface='bold') +
+  ggtitle('Per child expenditure on public education by state in 2016 - Top 10 states',
+          subtitle = "Party represents the Governor's party from Wikipedia") + 
+  labs(x='Per child expenditure (inflation adjusted, 1000s US$)',
+       y='',
+       fill='',
+       caption='Tidy Tuesday: Week 38 (2020)\nGovernor party not necessarily matches the correct party in 2016') + 
+  scale_fill_manual(values = party_cols) + 
+  theme_minimal() + 
+  theme(legend.position = 'top'))
+```
+
+```{r bottom_10_viz, include=TRUE, fig.height=6.2}
+(bottom_10_viz <- kids_2016 %>% 
+  arrange(inf_adj_perchild) %>% 
+  slice(1:10) %>% 
+  ggplot(.) + 
+  geom_col(aes(x=inf_adj_perchild,
+               y=reorder(state, inf_adj_perchild),
+               fill=party)) + 
+  geom_text(aes(label=round(inf_adj_perchild, 1),
+                x=inf_adj_perchild, 
+                y=reorder(state, inf_adj_perchild)), 
+            vjust=0.5, 
+            size = 4, 
+            position = position_stack(vjust = 0.5),
+            color='grey98',
+            fontface='bold') +
+  ggtitle('Per child expenditure on public education by state in 2016 - Bottom 10 states',
+          subtitle = "Party represents the Governor's party from Wikipedia") + 
+  labs(x='Per child expenditure (inflation adjusted, 1000s US$)',
+       y='',
+       fill='',
+       caption='Tidy Tuesday: Week 38 (2020)\nGovernor party not necessarily matches the correct party in 2016') + 
+  scale_fill_manual(values = party_cols) + 
+  theme_minimal() + 
+  theme(legend.position = 'top'))
+```
+
+# Saving graphics  
+
+```{r save_graphics, include=TRUE}
+ggsave("graphics/top_10_viz.png", top_10_viz,
+       width = 10, height = 8, dpi = 300)
+
+ggsave("graphics/bottom_10_viz.png", bottom_10_viz,
+       width = 10, height = 8, dpi = 300)
+```
