@@ -9,7 +9,6 @@ library(tidytuesdayR)
 library(rvest)
 library(magrittr)
 library(extrafont)
-library()
 ```
 
 ```{r read_data, include=TRUE}
