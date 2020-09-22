@@ -8,6 +8,8 @@ library(tidyverse)
 library(tidytuesdayR)
 library(rvest)
 library(magrittr)
+library(extrafont)
+library()
 ```
 
 ```{r read_data, include=TRUE}
@@ -27,28 +29,20 @@ kids %>%
   summary()
 ```
 
-```{r}
+```{r distinct_variable, include=TRUE}
 kids %>% 
   distinct(variable)
 ```
 
 **PK12ed**: Public spending on elementary and secondary education by state and year, in $1,000s. Data are from the Census Bureau's annual State and Local Government Finance Survey, expenditure variable E12 less private revenues from School Lunch (A09), School Tuition (A10), and Other Elementary-Secondary Education (A12). Data include public prekindergarten spending by school districts, including federal Head Start grants to school districts.
 
-```{r fig.height=6.2}
+```{r PK12ed_hist, include=TRUE, fig.height=6.2}
 kids %>% 
   filter(variable == 'PK12ed') %>% 
   ggplot(.) + 
   geom_histogram(aes(x=inf_adj_perchild)) + 
   ggtitle('Distribution of PK12ed')
 ```
-
-```{r}
-kids %>% 
-  filter(variable == 'PK12ed') %>% 
-  arrange(-inf_adj_perchild)
-```
-
-
 
 ```{r url_scrape, include=TRUE}
 url <- 'https://en.wikipedia.org/wiki/List_of_United_States_governors'
@@ -101,6 +95,27 @@ party_cols <- c('Republican' = 'red1',
                 'Democratic' = 'blue1')
 ```
 
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  plot.title = element_text(family="Gill Sans MT", color="black", face="bold", size=16, hjust=0), 
+  plot.subtitle = element_text(family="Gill Sans MT", color="black", size=14, hjust=0), 
+  axis.title = element_text(family="Gill Sans MT", color="black", face="bold", size=12), 
+  axis.text = element_text(family="Gill Sans MT", color="black", size=11), 
+  axis.ticks.y = element_blank(), 
+  plot.caption = element_text(family="Gill Sans MT", color="black", size=12), 
+  plot.background = element_rect(fill = "#F7F7F7", colour = NA),
+  panel.background =  element_rect(fill = "#F7F7F7", colour = NA), 
+  legend.background = element_rect(fill = "#F7F7F7", colour = NA), 
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(), 
+  #panel.border = element_rect(colour = "black", size = 0.5, fill=NA, linetype = 1),
+  legend.title=element_blank(), 
+  legend.text = element_text(family="Gill Sans MT", color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(family="Gill Sans MT", color="black", size=14))
+```
+
 ```{r top_10_viz, include=TRUE, fig.height=6.2}
 (top_10_viz <- kids_2016 %>% 
   arrange(-inf_adj_perchild) %>% 
@@ -122,10 +137,9 @@ party_cols <- c('Republican' = 'red1',
   labs(x='Per child expenditure (inflation adjusted, 1000s US$)',
        y='',
        fill='',
-       caption='Tidy Tuesday: Week 38 (2020)\nGovernor party not necessarily matches the correct party in 2016') + 
+       caption='\nTidy Tuesday: Week 38 (2020)\nData source: Urban Institute\nGovernor party not necessarily matches the correct party in 2016') + 
   scale_fill_manual(values = party_cols) + 
-  theme_minimal() + 
-  theme(legend.position = 'top'))
+  my.theme)
 ```
 
 ```{r bottom_10_viz, include=TRUE, fig.height=6.2}
@@ -149,10 +163,9 @@ party_cols <- c('Republican' = 'red1',
   labs(x='Per child expenditure (inflation adjusted, 1000s US$)',
        y='',
        fill='',
-       caption='Tidy Tuesday: Week 38 (2020)\nGovernor party not necessarily matches the correct party in 2016') + 
+       caption='\nTidy Tuesday: Week 38 (2020)\nData source: Urban Institute\nGovernor party not necessarily matches the correct party in 2016') + 
   scale_fill_manual(values = party_cols) + 
-  theme_minimal() + 
-  theme(legend.position = 'top'))
+  my.theme)
 ```
 
 # Saving graphics  
