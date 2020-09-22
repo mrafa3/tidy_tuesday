@@ -9,6 +9,7 @@ library(tidytuesdayR)
 library(rvest)
 library(magrittr)
 library(extrafont)
+library(scales)
 ```
 
 ```{r read_data, include=TRUE}
@@ -30,6 +31,43 @@ expeditions <- tuesdata$expeditions
 ```
 
 ```{r hist, include=TRUE, fig.height=6.2}
+```
+
+
+# Distribution of peak heights  
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  plot.title = element_text(family="Gill Sans MT", color="black", face="bold", size=16, hjust=0), 
+  plot.subtitle = element_text(family="Gill Sans MT", color="black", size=14, hjust=0), 
+  axis.title = element_text(family="Gill Sans MT", color="black", face="bold", size=12), 
+  axis.text = element_text(family="Gill Sans MT", color="black", size=11), 
+  axis.ticks.y = element_blank(), 
+  plot.caption = element_text(family="Gill Sans MT", color="black", size=12), 
+  plot.background = element_rect(fill = "#F7F7F7", colour = NA),
+  panel.background =  element_rect(fill = "#F7F7F7", colour = NA), 
+  legend.background = element_rect(fill = "#F7F7F7", colour = NA), 
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(), 
+  #panel.border = element_rect(colour = "black", size = 0.5, fill=NA, linetype = 1),
+  legend.title=element_blank(), 
+  legend.text = element_text(family="Gill Sans MT", color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(family="Gill Sans MT", color="black", size=14))
+```
+
+```{r height_meters_hist, include=TRUE, fig.height=6.2}
+peaks %>% 
+  ggplot(.) + 
+  geom_histogram(aes(x=height_metres),
+                 fill='slategray3',
+                 color='gray80') + 
+  labs(x='\nHeight (meters)',
+       y='Count',
+       caption='Tidy Tuesday Week 39 (2020)\nData source:The Himalayan Database') + 
+  scale_x_continuous(labels = comma) + 
+  my.theme
 ```
 
 
