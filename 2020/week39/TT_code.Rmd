@@ -10,6 +10,8 @@ library(rvest)
 library(magrittr)
 library(extrafont)
 library(scales)
+library(lubridate)
+library(ggtext)
 ```
 
 ```{r read_data, include=TRUE}
@@ -21,7 +23,27 @@ expeditions <- tuesdata$expeditions
 
 # EDA  
 
-```{r glimpse, include=TRUE}
+```{r glimpse_peaks, include=TRUE}
+peaks %>% 
+  glimpse()
+```
+
+```{r glimpse_expeditions, include=TRUE}
+expeditions %>% 
+  glimpse()
+```
+
+```{r expedition_attempts, include=TRUE}
+(expedition_attempts <- peaks %>% 
+  select(peak_id, height_metres) %>% 
+  left_join(x=.,
+            y=expeditions,
+            by='peak_id') %>% 
+  mutate(basecamp_year = year(basecamp_date)) %>% 
+  group_by(peak_name, basecamp_year) %>% 
+  summarise(count_expeditions = n()) %>% 
+  mutate(is_everest = if_else(peak_name == 'Everest',
+                              'Everest', 'Other')))
 ```
 
 ```{r summary, include=TRUE}
@@ -38,10 +60,10 @@ expeditions <- tuesdata$expeditions
 
 ```{r my.theme, include=TRUE}
 my.theme <- theme(
-  plot.title = element_text(family="Gill Sans MT", color="black", face="bold", size=16, hjust=0), 
-  plot.subtitle = element_text(family="Gill Sans MT", color="black", size=14, hjust=0), 
+  plot.title = element_text(family="Gill Sans MT", color="black", face="bold", size=24, hjust=0), 
+  plot.subtitle = element_text(family="Gill Sans MT", color="black", size=12, hjust=0), 
   axis.title = element_text(family="Gill Sans MT", color="black", face="bold", size=12), 
-  axis.text = element_text(family="Gill Sans MT", color="black", size=11), 
+  axis.text = element_text(family="Gill Sans MT", color="black", size=18), 
   axis.ticks.y = element_blank(), 
   plot.caption = element_text(family="Gill Sans MT", color="black", size=12), 
   plot.background = element_rect(fill = "#F7F7F7", colour = NA),
@@ -57,26 +79,75 @@ my.theme <- theme(
   strip.text = element_text(family="Gill Sans MT", color="black", size=14))
 ```
 
+```{r arw, include=TRUE}
+arw <- arrow(length = unit(5, "pt"), type = "closed")
+```
+
+
 ```{r height_meters_hist, include=TRUE, fig.height=6.2}
-peaks %>% 
+(peak_hist_viz <- peaks %>% 
   ggplot(.) + 
   geom_histogram(aes(x=height_metres),
                  fill='slategray3',
                  color='gray80') + 
+  geom_curve(data = data.frame(), 
+             aes(x = 8600, y = 9, xend = 8850, yend = 4), 
+             color = 'black', arrow = arw) +
+  annotate("text", x=8600, y=11, label = 'Mt. Everest', family='Gill Sans MT', size=4) + 
+  ggtitle('Mount Everest is really tall..',
+          subtitle = 'Distribution of peak heights in the Himalayas') + 
   labs(x='\nHeight (meters)',
        y='Count',
        caption='Tidy Tuesday Week 39 (2020)\nData source:The Himalayan Database') + 
   scale_x_continuous(labels = comma) + 
-  my.theme
+  my.theme)
 ```
 
+```{r paving_everest_viz, include=TRUE, fig.height=6.2}
+(paving_everest_viz <- expedition_attempts %>%
+  ungroup() %>% 
+  filter(complete.cases(.)) %>% 
+  ggplot(.,
+         aes(x=basecamp_year,
+             y=count_expeditions,
+             color=is_everest,
+             size=is_everest)) + 
+  geom_line(aes(group=peak_name)) + 
+  geom_point(data=. %>% filter(basecamp_year == 2019,
+                               peak_name == 'Everest')) + 
+  annotate(geom = "text", x=2016, y=100,
+           label='Everest',
+           color='darkblue',
+           size=6,
+           fontface='bold') + 
+  ggtitle('Paving Everest?',
+          subtitle = 'Tracking the increase in expeditions over time of Himalayan peaks') + 
+  labs(x='Year (of basecamp)',
+       y='Number of expeditions\n',
+       caption='Tidy Tuesday Week 39 (2020)\nData source:The Himalayan Database') + 
+  scale_size_manual(values = c('Everest' = 1.2,
+                               'Other' = .8)) + 
+  scale_color_manual(values = c('Everest' = 'darkblue',
+                                'Other' = 'gray60')) + 
+  scale_y_continuous(position = 'right',
+                     breaks = seq(0, 90, by=30),  
+                     labels = c('', '30', '60', '90')) + 
+  my.theme + 
+  theme(legend.position = 'none'))
+
+#attempted element_textbox() to change the orientation of the y-axis,
+#but it does not seem to work with a right-side axis
+        #axis.title.y = element_textbox(hjust = 1, vjust = 1, width = unit(1, "inch"), lineheight = 1.2))
+```
 
 # Saving graphics  
 
 ```{r save_graphics, include=TRUE}
-ggsave("graphics/.png", ,
+ggsave("graphics/peak_hist_viz.png", 
+       peak_hist_viz,
        width = 10, height = 8, dpi = 300)
 
-ggsave("graphics/.png", ,
+ggsave("graphics/paving_everest_viz.png",
+       paving_everest_viz,
        width = 10, height = 8, dpi = 300)
 ```
