@@ -1,0 +1,44 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(rvest)
+library(magrittr)
+library(extrafont)
+```
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 39)
+peaks <- tuesdata$peaks
+members <- tuesdata$members
+expeditions <- tuesdata$expeditions
+```
+
+# EDA  
+
+```{r glimpse, include=TRUE}
+```
+
+```{r summary, include=TRUE}
+```
+
+```{r distinct_variable, include=TRUE}
+```
+
+```{r hist, include=TRUE, fig.height=6.2}
+```
+
+
+# Saving graphics  
+
+```{r save_graphics, include=TRUE}
+ggsave("graphics/.png", ,
+       width = 10, height = 8, dpi = 300)
+
+ggsave("graphics/.png", ,
+       width = 10, height = 8, dpi = 300)
+```
