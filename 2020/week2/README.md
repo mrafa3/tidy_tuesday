@@ -7,7 +7,7 @@ Repo for Tidy Tuesday exercise, Week 2 (2020).
 
 ## Notes  
 
-Largely replicating the plots done [https://github.com/jkaupp/tidytuesdays/tree/master/2020/week2](here) with some modifications.
+Largely replicating the plots done [here](https://github.com/jkaupp/tidytuesdays/tree/master/2020/week2) with some modifications.
 
 Some highlights:
 
