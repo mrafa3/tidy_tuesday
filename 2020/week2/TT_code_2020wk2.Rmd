@@ -163,6 +163,6 @@ To do this advanced formatting, I need to use `labs()` instead of `ggtitle()` in
 
 ```{r save_graphics, include=TRUE}
 ggsave("graphics/plot_rain_temp_1900_2019.png", plot_rain_temp,
-       width = 10, height = 8, dpi = 300)
+       width = 12, height = 8, dpi = 300)
 ```
 
