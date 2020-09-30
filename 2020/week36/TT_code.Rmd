@@ -17,6 +17,7 @@ library(jkmisc)
 library(ggtext)
 library(patchwork)
 library(countrycode)
+library(gt)
 #library(ggbeeswarm)
 #library(geofacet)             #only includes US states at the moment but supports user-specified grids
 #see here for someone's created Africa grid: https://github.com/malinfax/africa-grid1
@@ -54,16 +55,111 @@ yield <- tuesdata$key_crop_yields
 yield_fertilizer <- tuesdata$cereal_crop_yield_vs_fertilizer_application
 ```
 
+# Wrangling  
+
+```{r}
+yield %>% 
+  janitor::clean_names() %>% 
+  left_join(x=.,
+            y=countrycode::codelist %>% 
+              select(continent, iso3c, un.regionsub.name) %>% 
+              filter(complete.cases(.)),
+            by=c('code' = 'iso3c'))
+```
+
+
+```{r yield_mutate, include=TRUE}
+(yield %<>% 
+  janitor::clean_names() %>% 
+  left_join(x=.,
+            y=countrycode::codelist %>% 
+              select(continent, iso3c, un.regionsub.name) %>% 
+              filter(complete.cases(.)),
+            by=c('code' = 'iso3c')) %>% 
+  gather(crop, yield, 4:14) %>% 
+  mutate(decade = as.factor(year - (year %% 10)),
+         crop = str_to_title(str_remove(crop, "_tonnes_per_hectare"))))
+```
+
 ```{r yield_fertilizer_mutate, include=TRUE}
 (yield_fertilizer %<>% 
   clean_names() %>% 
   left_join(x=.,
-            y=countrycode::codelist %>% select(continent, iso3c),
+            y=countrycode::codelist %>% 
+              select(continent, iso3c) %>% 
+              filter(complete.cases(.)),
             by=c('code' = 'iso3c')) %>% 
    mutate(decade = as.factor(year - (year %% 10))) %>% 
    rename(yield = cereal_yield_tonnes_per_hectare,
           nitrogen = nitrogen_fertilizer_use_kilograms_per_hectare))
 ```
+
+# Experimenting with `gt::` for effective tables  
+
+```{r staples, include=TRUE}
+staples <- c('Wheat', 'Rice', 'Maize', 'Soybeans', 'Cassava')
+```
+
+```{r}
+yield %>% 
+  filter(continent == 'Africa') %>% 
+  distinct(un.regionsub.name)
+```
+
+```{r sadc, include=TRUE}
+sadc <- c('Angola', 'Botswana', 'Comoros', 
+          'Democratic Republic of Congo', 'Swaziland', 
+          'Lesotho', 'Madagascar', 'Malawi', 'Mauritius',
+          'Mozambique', 'Namibia', 'Seychelles', 
+          'South Africa', 'Tanzania', 'Zambia', 'Zimbabwe')
+```
+
+```{r yield_gt, include=TRUE}
+yield_gt <- yield %>% 
+  filter(year >= 2015,
+         entity %in% sadc) %>% 
+  select(-c(decade, continent, code, un.regionsub.name)) %>% 
+  spread(year, yield) %>% 
+  rename(country = entity) %>%
+  filter(crop == 'Maize') %>% 
+  select(-crop) %>% 
+  gt(rowname_col = 'country') %>% 
+  fmt_number(columns = 2:last_col(),
+             decimals = 1) %>% 
+  fmt_missing(columns = 2:last_col(),
+              missing_text = '-') %>% 
+  tab_header(title = md("**Maize Yields in the Southern African Development Community**"),
+             subtitle = md("*in tons per hectare* between 2015 and 2018")) %>% 
+  #To highlight results of a row
+  #tab_style(style = 
+   #           list(cell_text(color = "red", style = "italic")),
+    #        locations = cells_body(columns = 2:last_col(),
+     #                              rows = country == "Zambia"
+    #)) %>% 
+  data_color(
+    columns = 2:last_col(),
+    colors = 
+      scales::col_numeric(
+        paletteer::paletteer_d(
+          palette = "ggsci::green_material") %>% 
+          as.character(),
+        domain = NULL)) %>% 
+  tab_source_note(source_note = md("**Source**: Our World In Data<br>**Inspiration**: https://themockup.blog/posts/2020-09-04-10-table-rules-in-r/")) %>% 
+  tab_options(
+    heading.subtitle.font.size = 12,
+    heading.align = "left",
+    table.border.top.color = "black",
+    column_labels.border.bottom.color = "black",
+    column_labels.border.bottom.width= px(3))
+```
+
+```{r save_yield_gt, include=TRUE}
+yield_gt %>% 
+  gtsave(filename = 'yield_gt.png',
+         path = './/graphics/yield_gt.png')
+```
+
+# Visualizations  
 
 ```{r fig.height=7}
 yield_fertilizer %>% 
@@ -78,24 +174,12 @@ yield_fertilizer %>%
   my.theme
 ```
 
-```{r yield_mutate, include=TRUE}
-(yield %<>% 
-  janitor::clean_names() %>% 
-  left_join(x=.,
-            y=countrycode::codelist %>% 
-              select(continent, iso3c),
-            by=c('code' = 'iso3c')) %>% 
-  gather(crop, yield, 4:14) %>% 
-  mutate(decade = as.factor(year - (year %% 10)),
-         crop = str_remove(crop, "_tonnes_per_hectare")))
-```
-
 ```{r fig.height=7}
 test <- yield %>% 
   filter(entity %in% c('Western Africa', 'Southern Africa',
                        'Northern Africa', 'Middle Africa', 
                        'Eastern Africa', 'Low Income Food Deficit Countries'),
-         crop %in% c('wheat', 'rice', 'maize', 'soybeans', 'cassava')) %>% 
+         crop %in% staples) %>% 
   ggplot(.) + 
   geom_line(aes(x=year,
                 y=yield,
