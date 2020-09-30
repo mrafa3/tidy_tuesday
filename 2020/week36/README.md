@@ -12,6 +12,7 @@ Some highlights:
 *  Using `janitor::clean_names()` to help with initial management of the dataset. This helps with quick tidying. 
 *  Using the `%%` operator to quickly calculate the `decade` variable.  
 *  Using `countrycode::` to join to `continent` to provide another dimension to the analysis.  
+*  Using `gt::` to produce a table of maize yield in the Southern African Development Community.  
 
 Further development:  
 
@@ -20,6 +21,4 @@ Further development:
 
 ## Visualization  
 
-**Incomplete**
-
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week36/graphics/yield_gt.png/yield_gt.png)
