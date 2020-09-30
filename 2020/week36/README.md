@@ -22,3 +22,5 @@ Further development:
 ## Visualization  
 
 ![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week36/graphics/yield_gt.png/yield_gt.png)
+
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week36/graphics/yield_gt.png/fertilizer_gt.png)

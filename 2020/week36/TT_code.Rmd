@@ -153,6 +153,44 @@ yield_gt %>%
          path = './/graphics/yield_gt.png')
 ```
 
+```{r yield_fertilizer_gt, include=TRUE}
+yield_fertilizer_gt <- yield_fertilizer %>% 
+  filter(year %in% seq(2002, 2016, by=2), 
+         entity %in% sadc) %>% 
+  select(-c(code, continent, decade, yield)) %>% 
+  spread(year, nitrogen) %>% 
+  gt(rowname_col = 'entity') %>% 
+  fmt_missing(columns = 2:last_col(),
+              missing_text = '-') %>% 
+  fmt_number(columns = 2:last_col(),
+             decimals = 1) %>% 
+  tab_header(title = md('Levels of **nitrogen fertilizer** used in agriculture **Southern African Development Community**'),
+             subtitle = md("in *kilgrams per hectare* over time (2002-2016)")) %>% 
+  data_color(columns = 2:last_col(),
+             colors = scales::col_numeric(
+               paletteer::paletteer_d(palette = "ggsci::green_material") %>% 
+                 as.character(),
+             domain = NULL)) %>% 
+  tab_source_note(source_note = md("**Source**: Our World in Data")) %>% 
+  tab_options(column_labels.border.top.color = "white",
+              column_labels.border.top.width = px(3),
+              column_labels.border.bottom.color = "black",
+              table_body.hlines.color = "white",
+              table.border.bottom.color = "white",
+              table.border.bottom.width = px(3),
+              heading.title.font.size = 16,
+              heading.subtitle.font.size = 12,
+              heading.align = "left",
+              table.border.top.color = "black")
+```
+
+
+```{r save_fertilizer_gt, include=TRUE}
+yield_fertilizer_gt %>% 
+  gtsave(filename = 'fertilizer_gt.png',
+         path = './/graphics/fertilizer_gt.png')
+```
+
 # Visualizations  
 
 ```{r fig.height=7}
