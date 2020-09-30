@@ -1,7 +1,7 @@
 # Tidy Tuesday
 Repo for Tidy Tuesday exercise, Week 36 (2020).
 
-[Original post](https://ourworldindata.org/crop-yields))
+[Original post](https://ourworldindata.org/crop-yields)
 
 [Source metadata](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-09-01/readme.md)
 
@@ -23,4 +23,4 @@ Further development:
 
 ![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week36/graphics/yield_gt.png/yield_gt.png)
 
-![](https://github.com/mrafa3/tidy_tuesday/tree/master/2020/week36/graphics/fertilizer_gt.png/fertilizer_gt.png)
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week36/graphics/fertilizer_gt.png/fertilizer_gt.png)
