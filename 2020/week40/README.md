@@ -23,4 +23,4 @@ Further development:
 
 ## Visualization  
 
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week40/graphics/BoW_viz.png)
