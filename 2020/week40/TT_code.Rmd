@@ -18,6 +18,7 @@ library(patchwork)
 #library(ggridges)
 #library(ggtern)
 library(tidytext)     #for text management
+library(tidylo)
 library(SnowballC)    #for text stemming
 library(wordcloud)    #for word cloud
 #library(zoo)
@@ -37,40 +38,35 @@ beyonce_lyrics %>%
   glimpse()
 ```
 
-```{r read_stop_words, include=TRUE}
-data("stop_words")
-```
-
 ```{r tok_beyonce_lyrics, include=TRUE}
 (tok_beyonce_lyrics <- beyonce_lyrics %>% 
-  tidytext::unnest_tokens(output = word, 
-                          input = line, 
-                          token = "words") %>% 
-  group_by(song_id, song_name) %>% 
-  mutate(word_count = row_number()) %>% 
-  #lots of stop words removed...
-  anti_join(stop_words, by = 'word') %>% 
-  ungroup()) 
-```
-
-```{r}
-taylor_swift_lyrics
-```
-
-```{r}
-tok_taylor_swift_lyrics %>% 
-  janitor::tabyl(word) %>% 
-  as.data.frame() %>% 
-  arrange(-n)
-  count(word, sort = TRUE)
+   janitor::clean_names() %>% 
+   tidytext::unnest_tokens(output = word, 
+                          input = line) %>% 
+   distinct(word, song_id, .keep_all = TRUE) %>% 
+   select(word, artist_name))
 ```
 
 
 ```{r tok_taylor_swift_lyrics, include=TRUE}
 (tok_taylor_swift_lyrics <- taylor_swift_lyrics %>% 
-  unnest_tokens(word, Lyrics) %>% 
-  mutate(word_count = row_number()) %>% 
-  anti_join(stop_words, by="word"))
+   janitor::clean_names() %>% 
+   unnest_tokens(word, lyrics) %>% 
+   distinct(word, artist, keep.all = TRUE) %>% 
+   select(word, artist_name = artist))
+```
+
+```{r tidy_lyrics, include=TRUE}
+(tidy_lyrics <- 
+  bind_rows(tok_taylor_swift_lyrics, tok_beyonce_lyrics) %>% 
+    anti_join(tidytext::get_stopwords(), by = 'word') %>% 
+    count(artist_name, word, sort = TRUE) %>%
+    filter(!is.na(word)))
+```
+
+```{r bind_log_odds, include=TRUE}
+tidy_lyrics <- tidy_lyrics %>%
+  bind_log_odds(artist_name, word, n)
 ```
 
 ```{r my.theme, include=TRUE}
@@ -94,10 +90,26 @@ my.theme <- theme(
   strip.text = element_text(family="Gabriola", color="black", size=14))
 ```
 
-```{r tswift_BoW_viz, include=TRUE, fig.height=6.2}
-(tswift_BoW_viz <- tok_taylor_swift_lyrics %>% 
+```{r}
+(count_tswift <- taylor_swift_lyrics %>% 
+  janitor::clean_names() %>% 
+  unnest_tokens(word, lyrics) %>% 
+  anti_join(get_stopwords(), by = 'word') %>% 
   janitor::tabyl(word) %>% 
   as.data.frame() %>% 
+  arrange(-n))
+
+(count_beyonce <- beyonce_lyrics %>% 
+  janitor::clean_names() %>% 
+  unnest_tokens(word, line) %>% 
+  anti_join(get_stopwords(), by = 'word') %>% 
+  janitor::tabyl(word) %>% 
+  as.data.frame() %>% 
+  arrange(-n))
+```
+
+```{r tswift_BoW_viz, include=TRUE, fig.height=6.2}
+(tswift_BoW_viz <- count_tswift %>% 
   slice_max(percent, n=10) %>% 
   ggplot(.,
          aes(x=percent,
@@ -115,14 +127,8 @@ my.theme <- theme(
   my.theme)
 ```
 
-
-
-
-
 ```{r beyonce_BoW_viz, include=TRUE, fig.height=6.2}
-(beyonce_BoW_viz <- tok_beyonce_lyrics %>% 
-  janitor::tabyl(word) %>% 
-  as.data.frame() %>% 
+(beyonce_BoW_viz <- count_beyonce %>% 
   slice_max(percent, n=10) %>% 
   ggplot(.,
          aes(x=percent,
