@@ -15,6 +15,8 @@ To-do:
 
 Some highlights:
 
+-  Using code from [here](https://twitter.com/juliasilge/status/1311719140298694656?s=19) to learn the tidy workflow for NLP.
+
 Further development:  
 
 *  Could do sentiment analysis
