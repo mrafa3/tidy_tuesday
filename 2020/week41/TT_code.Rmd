@@ -1,0 +1,132 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(rvest)
+library(magrittr)
+library(scales)
+library(extrafont)
+library(ggforce)
+library(glue)
+library(jkmisc)
+library(ggtext)
+library(patchwork)
+library(ggridges)
+library(ggtern)
+#library(zoo)
+#library(lubridate)
+```
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 41)
+tournament <- tuesdata$tournament
+```
+
+# EDA  
+
+```{r glimpse_, include=TRUE}
+tournament %>% 
+  glimpse()
+```
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  plot.title = element_markdown(family="Calisto MT", color="black", face="bold", size=24, hjust=0), 
+  plot.subtitle = element_markdown(family="Calisto MT", color="black", size=12, hjust=0), 
+  plot.caption = element_markdown(family="Calisto MT", color="black", size=12), 
+  plot.background = element_blank(),
+  axis.title = element_markdown(family="Calisto MT", color="black", face="bold", size=12), 
+  axis.title.y = ggtext::element_markdown(size=14, angle = 0), 
+  axis.text = element_markdown(family="Calisto MT", color="black", size=12), 
+  #axis.ticks.y = element_blank(), 
+  panel.background =  element_blank(), 
+  #panel.grid.major = element_line(colour = "grey90", size = 0.5),
+  #panel.grid.minor = element_line(colour = "grey93", size = 0.5),
+  panel.border = element_blank(), 
+  #panel.border = element_rect(colour = "black", size = 0.5, fill=NA, linetype = 1),
+  legend.title=element_blank(), 
+  legend.background = element_blank(), 
+  legend.text = element_markdown(family="Calisto MT", color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_markdown(family="Calisto MT", color="black", size=12, face = 'bold'),
+  strip.background = element_blank())
+```
+
+
+```{r programs, include=TRUE}
+programs <- tournament %>% 
+  select(year, school, full_percent) %>%
+  group_by(school) %>%
+  #tally() function useful for determining number of mentions
+  tally(sort = TRUE) %>% 
+  ungroup() %>% 
+  head(30) %>% 
+  pull(school)
+```
+
+```{r mutate_tournament, include=TRUE}
+tournament <- tournament %>% 
+  mutate(median_w_l = median(full_percent, na.rm = TRUE)) %>% 
+  mutate(above_below_median = ifelse(full_percent > median_w_l, 
+                                     full_percent, median_w_l))
+```
+
+```{r w_l_small_mult_viz, fig.height=8}
+(w_l_small_mult_viz <- tournament %>% 
+  filter(school %in% programs) %>% 
+  ggplot(.,
+         aes(x=year,
+             y=full_percent/100)) + 
+  geom_line() + 
+  geom_hline(yintercept = tournament$median_w_l[1]/100) + 
+  geom_ribbon(aes(ymin=median_w_l/100, ymax=full_percent/100), 
+              fill='firebrick1') + 
+  geom_ribbon(aes(ymin=median_w_l/100, ymax=above_below_median/100), 
+              fill='springgreen3') + 
+  facet_wrap(~school) + 
+  ggtitle("Historical win percentage in women's college basketball",
+          subtitle = 'Plot compares season-by-season win percentage of 30 programs compared with the historical median win percentage\nPrograms chosen based on data availability') + 
+  labs(x='',
+       y='Win % by season compared to historical median for all programs',
+       caption='Tidy Tuesday Week 41 (2020)<br>**Source**: FiveThirtyEight') + 
+  scale_y_continuous(labels = percent) + 
+  my.theme)
+```
+
+# Big 12  
+
+```{r big12_viz, fig.height=7.1}
+(big12_viz <- tournament %>% 
+  filter(conference == 'Big 12',
+         !school %in% c('Colorado', 'Missouri', 'Nebraska', 'Texas A&M')) %>% 
+  ggplot(.,
+         aes(x=year,
+             y=full_percent/100)) + 
+  geom_line() + 
+  geom_hline(yintercept = tournament$median_w_l[1]/100) + 
+  geom_ribbon(aes(ymin=median_w_l/100, ymax=full_percent/100), 
+              fill='firebrick1') + 
+  geom_ribbon(aes(ymin=median_w_l/100, ymax=above_below_median/100), 
+              fill='springgreen3') + 
+  facet_wrap(~ school) + 
+  ggtitle("Baylor reigns queen in the Big 12",
+          subtitle = "Plot compares season-by-season win percentage of Big 12 programs compared with the historical median win percentage of all programs in women's basketball") + 
+  labs(x='Year',
+       y='Win % by season compared to\nhistorical median for all programs\n',
+       caption='Tidy Tuesday Week 41 (2020)<br>**Source**: FiveThirtyEight') + 
+  scale_y_continuous(labels = percent) + 
+  my.theme)
+```
+
+
+
+
+```{r save_graphics, include=TRUE}
+ggsave("graphics/big12_viz.png", big12_viz,
+       width = 12, height = 7.1, dpi = 300)
+```
+
