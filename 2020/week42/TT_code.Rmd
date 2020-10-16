@@ -42,12 +42,12 @@ split(datasaurus, datasaurus$dataset) %>%
 
 ```{r my.theme, include=TRUE}
 my.theme <- theme(
-  plot.title = element_text(family="Gill Sans MT", color="black", face="bold", size=24, hjust=0), 
-  plot.subtitle = element_text(family="Gill Sans MT", color="black", size=12, hjust=0), 
-  axis.title = element_text(family="Gill Sans MT", color="black", face="bold", size=12), 
-  axis.text = element_text(family="Gill Sans MT", color="black", size=18), 
-  axis.ticks.y = element_blank(), 
-  plot.caption = element_text(family="Gill Sans MT", color="black", size=12), 
+  plot.title = element_text(family="High Tower Text", color="black", face="bold", size=24, hjust=0), 
+  plot.subtitle = element_text(family="High Tower Text", color="black", size=12, hjust=0), 
+  axis.title = element_text(family="High Tower Text", color="black", face="bold", size=12), 
+  axis.text = element_text(family="High Tower Text", color="black", size=9), 
+  axis.ticks = element_blank(), 
+  plot.caption = element_text(family="High Tower Text", color="black", size=12), 
   plot.background = element_blank(),
   panel.background =  element_blank(), 
   legend.background = element_blank(), 
@@ -56,9 +56,9 @@ my.theme <- theme(
   panel.border = element_blank(), 
   #panel.border = element_rect(colour = "black", size = 0.5, fill=NA, linetype = 1),
   legend.title=element_blank(), 
-  legend.text = element_text(family="Gill Sans MT", color="black", size=12, hjust=0),
+  legend.text = element_text(family="High Tower Text", color="black", size=12, hjust=0),
   legend.position = 'top',
-  strip.text = element_text(family="Gill Sans MT", color="black", size=14))
+  strip.text = element_text(family="High Tower Text", color="black", size=14, face = 'bold'))
 ```
 
 ```{r sum_datasaurus, include=TRUE}
@@ -68,6 +68,12 @@ my.theme <- theme(
                      min = min, 
                      max = max,
                      sd = sd)))
+```
+
+```{r}
+column_names <- c('dataset', 'Mean(x)', 'Mean(y)', 'Min(x)', 'Min(y)', 'Max(x)', 'Max(y)', 'Std Dev(x)', 'Std Dev(y)')
+
+names(sum_datasaurus) <- column_names
 ```
 
 ```{r facet_datasaurus_viz, include=TRUE, fig.height=6.2, fig.width=3}
@@ -85,27 +91,36 @@ my.theme <- theme(
 (datasaurus_summary_stat_viz <- sum_datasaurus %>% 
   filter(dataset %in% c('dino', 'bullseye', 'star')) %>% 
   gather(summary_statistic, value, 2:9) %>% 
+  mutate(value = round(value, 2)) %>% 
   mutate(nrow = row_number(),
          label = paste(summary_statistic, value, sep = " = ")) %>% 
   ggplot(.) + 
   geom_text(aes(x=1,
                 y=nrow,
-                label=label)) + 
+                label=label),
+            family="High Tower Text") + 
   facet_wrap(~dataset,
              ncol = 1) + 
-  theme_minimal() + 
+  my.theme + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.title = element_blank(),
         axis.text = element_blank()))
 ```
 
-```{r fig.height=6.2}
-datasaurus_summary_stat_viz + facet_datasaurus_viz + 
-  plot_annotation(theme = theme_jk(markdown=TRUE),
-                  title = 'Remember to visualize your data',
-                  subtitle = "Anscombe's Quartet...",
-                  caption = 'Tidy Tuesday Week 41 (2020)')
+```{r datasaurus_viz, include=TRUE, fig.height=7}
+(datasaurus_viz <- datasaurus_summary_stat_viz + facet_datasaurus_viz + 
+  plot_annotation(theme = theme_jk(markdown=TRUE,
+                                   plot_title_family = "High Tower Text",
+                                   subtitle_family = "High Tower Text",
+                                   caption_family = "High Tower Text",
+                                   caption_size = 12),
+                  title = '**Summary statistics can lie**',
+                  subtitle = "Anscombe's Quartet is a statistical trap that demonstrates that summary statistics can be misleading. The visualization below shows three <br>**contemporary** examples of Anscombe's Quartet. Only by **visualizing** the data can you understand the dramatic differences in the distribution of the data.",
+                  caption = 'Tidy Tuesday Week 41 (2020)'))
 ```
 
-
+```{r save_graphics, include=TRUE}
+ggsave("graphics/datasaurus_viz.png", datasaurus_viz,
+       width = 12, height = 7.1, dpi = 300)
+```
