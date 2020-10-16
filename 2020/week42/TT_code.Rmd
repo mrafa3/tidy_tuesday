@@ -87,16 +87,28 @@ names(sum_datasaurus) <- column_names
   my.theme)
 ```
 
+```{r sum_datasaurus_2, include=TRUE}
+(sum_datasaurus <- sum_datasaurus %>% 
+  gather(summary_statistic, value, 2:9) %>% 
+  mutate(value = round(value, 2)) %>% 
+  mutate(label = paste(summary_statistic, value, sep = " = ")))
+
+sum_datasaurus$summary_statistic <- factor(sum_datasaurus$summary_statistic, levels =  c('Std Dev(y)', 'Std Dev(x)', 
+                                                                                         'Min(y)', 'Min(x)', 
+                                                                                         'Max(y)', 'Max(x)', 
+                                                                                         'Mean(y)', 'Mean(x)'))
+
+sum_datasaurus
+```
+
+
 ```{r datasaurus_summary_stat_viz, include=TRUE, fig.height=6.2, fig.width=3}
 (datasaurus_summary_stat_viz <- sum_datasaurus %>% 
   filter(dataset %in% c('dino', 'bullseye', 'star')) %>% 
-  gather(summary_statistic, value, 2:9) %>% 
-  mutate(value = round(value, 2)) %>% 
-  mutate(nrow = row_number(),
-         label = paste(summary_statistic, value, sep = " = ")) %>% 
+  mutate(nrow = row_number()) %>% 
   ggplot(.) + 
   geom_text(aes(x=1,
-                y=nrow,
+                y=-nrow,
                 label=label),
             family="High Tower Text") + 
   facet_wrap(~dataset,
@@ -108,7 +120,7 @@ names(sum_datasaurus) <- column_names
         axis.text = element_blank()))
 ```
 
-```{r datasaurus_viz, include=TRUE, fig.height=7}
+```{r datasaurus_viz, include=TRUE, fig.height=6.5, fig.width=10}
 (datasaurus_viz <- datasaurus_summary_stat_viz + facet_datasaurus_viz + 
   plot_annotation(theme = theme_jk(markdown=TRUE,
                                    plot_title_family = "High Tower Text",
@@ -116,11 +128,11 @@ names(sum_datasaurus) <- column_names
                                    caption_family = "High Tower Text",
                                    caption_size = 12),
                   title = '**Summary statistics can lie**',
-                  subtitle = "Anscombe's Quartet is a statistical trap that demonstrates that summary statistics can be misleading. The visualization below shows three <br>**contemporary** examples of Anscombe's Quartet. Only by **visualizing** the data can you understand the dramatic differences in the distribution of the data.",
+                  subtitle = "Anscombe's Quartet is a statistical trap that demonstrates that summary statistics can be misleading. The visualization below shows three <br>**contemporary** examples of Anscombe's Quartet. Only by **visualizing** the data can you understand the dramatic differences in the distribution of the data.<br>As Alberto Cairo, a world famous information designer stated, '**Never trust summary statistics alone; always visualize your data**.'",
                   caption = 'Tidy Tuesday Week 41 (2020)'))
 ```
 
 ```{r save_graphics, include=TRUE}
 ggsave("graphics/datasaurus_viz.png", datasaurus_viz,
-       width = 12, height = 7.1, dpi = 300)
+       width = 10, height = 6.5, dpi = 300)
 ```
