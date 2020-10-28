@@ -14,3 +14,7 @@ Some highlights:
 ## Visualization  
 
 ![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week42/graphics/datasaurus_viz.png)
+
+## Examples that I like 
+
+*  [This example](https://twitter.com/JDavison_/status/1315979506541301761?s=19) is a great use of `gganimate::` (both with graphics and text) and I like the typeface.
