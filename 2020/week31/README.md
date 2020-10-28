@@ -14,6 +14,11 @@ Some highlights:
 *  Using `geom_smooth()` to show relationship broken down by `species`.  
 *  Using `ggtern::` to have a ternary diagram of penguin features.
 
+Further development:  
+
+	* Could use linear discriminant regression or decision tree to predict the species of penguin.  
+	* Could split the data into training and test (`caret::`), remove species label, and run kNN or naive Bayes to test label accuracy.   
+
 ## Visualization  
 
 ![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week31/graphics/flipper_bill_by_species_viz.png)
