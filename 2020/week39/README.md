@@ -24,3 +24,7 @@ Further development:
 ![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week39/graphics/peak_hist_viz.png)
 
 ![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week39/graphics/paving_everest_viz.png)
+
+## Examples that I like  
+
+*  [This article](https://www.r-bloggers.com/2020/09/handle-class-imbalance-in-tidytuesday-climbing-expedition-data-with-tidymodels/) addresses the class imbalance in the data and uses the `tidymodels::` package.  
