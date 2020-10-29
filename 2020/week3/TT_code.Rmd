@@ -59,19 +59,33 @@ my.theme <- theme(
   strip.text = element_text(family="Courier New", color="black", size=14))
 ```
 
+```{r}
+passwords %>% 
+  slice_max(strength)
+```
+
+
 ```{r strength_viz, include=TRUE, fig.height=6.2}
 (strength_viz <- passwords %>% 
   filter(!is.na(category)) %>% 
   group_by(category) %>% 
   mutate(mean_password_strength = mean(strength),
          median_password_strength = median(strength)) %>% 
-  ggplot(.) + 
-  geom_jitter(aes(x=strength,
-                 y=reorder(category, median_password_strength),
-                 color=category),
-                 height=.2, width = .5) + 
+  ggplot(.,
+         aes(x=strength,
+                 y=reorder(category, 
+                           median_password_strength))) + 
+  geom_jitter(aes(color=category),
+              height=.2, width = .5) + 
   geom_vline(aes(xintercept = median(strength)),
              linetype='dashed') + 
+  ggrepel::geom_text_repel(data=. %>% 
+                             ungroup() %>% 
+                             slice_max(strength),
+                            aes(label=password),
+                           force=10,
+                           family='Courier New',
+                           size=6) + 
   labs(x='\nRelative strength of password',
        y='') + 
   my.theme + 
@@ -83,7 +97,7 @@ my.theme <- theme(
                      subtitle_family = 'Courier New',
                      caption_family = 'Courier New'),
     title = 'Relative **password strength** by category of password',
-    subtitle = 'Each dot represents a unique password from the Knowledge is Beautiful password database',
+    subtitle = 'Each dot represents a unique password from the Knowledge is Beautiful password database<br>**rush2112** is the password with the highest strength score in the dataset',
     caption = 'Tidy Tuesday Week 3 (2020)<br>**Source**: Knowledge is Beautiful'))
 ```
 

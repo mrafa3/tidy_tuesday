@@ -9,6 +9,8 @@ Repo for Tidy Tuesday exercise, Week 3 (2020).
 
 Some highlights:
 
+*  Using a `group_by()` and `mutate()` pipeline, which I don't regularly use, but comes in handy when we want to maintain the observations (instead of collapsing them). 
+
 ## Visualization  
 
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week3/graphics/strength_viz.png)
