@@ -1,0 +1,91 @@
+---
+title: "R Notebook"
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(rvest)
+library(magrittr)
+library(scales)
+library(extrafont)
+library(ggforce)
+library(glue)
+library(jkmisc)
+library(ggtext)
+library(patchwork)
+library(ggridges)
+#library(ggtern)
+#library(zoo)
+#library(lubridate)
+```
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2020, week = 44)
+turbines <- tuesdata$`wind-turbine`
+```
+
+# EDA  
+
+```{r glimpse_, include=TRUE}
+turbines %>% 
+  glimpse()
+```
+
+```{r summary_, include=TRUE}
+turbines %>% 
+  summary()
+```
+
+```{r hist_, include=TRUE, fig.height=6.2}
+
+```
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  plot.title = element_text(family="Gill Sans MT", color="black", face="bold", size=24, hjust=0), 
+  plot.subtitle = element_text(family="Gill Sans MT", color="black", size=12, hjust=0), 
+  axis.title = element_text(family="Gill Sans MT", color="black", face="bold", size=12), 
+  axis.text = element_text(family="Gill Sans MT", color="black", size=18), 
+  axis.ticks.y = element_blank(), 
+  plot.caption = element_text(family="Gill Sans MT", color="black", size=12), 
+  plot.background = element_blank(),
+  panel.background =  element_blank(), 
+  legend.background = element_blank(), 
+  panel.grid.major = element_line(colour = "grey90", size = 0.5),
+  panel.grid.minor = element_line(colour = "grey93", size = 0.5),
+  panel.border = element_blank(), 
+  #panel.border = element_rect(colour = "black", size = 0.5, fill=NA, linetype = 1),
+  legend.title=element_blank(), 
+  legend.text = element_text(family="Gill Sans MT", color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(family="Gill Sans MT", color="black", size=14))
+```
+
+```{r}
+turbines
+  filter(project_name == 'Cowley North') 
+  summarise(sum(turbine_rated_capacity_k_w)/1000)
+```
+
+```{r}
+turbines %>% 
+  group_by(province_territory) %>% 
+  summarise(turbine_capacity_mw = sum(turbine_rated_capacity_k_w, na.rm = TRUE) / 1000)
+```
+
+# Count of turbine projects over time 
+
+If I did some tidying of `commissioning_date`, we could do a running total plot of turbine projects by province (some, for instance, have "2001/2002").
+
+```{r distinct_commissioning_date, include=TRUE}
+turbines %>% 
+  distinct(commissioning_date)
+```
+
+```{r}
+turbines %>% 
+  group_by(province_territory, commissioning_date) %>% 
+  summarise(count = seq(n()))
+```
+
