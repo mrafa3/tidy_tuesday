@@ -11,6 +11,9 @@ Repo for Tidy Tuesday exercise, Week 44 (2020).
 
 Some highlights:
 
+*  Figured out some regex work to wrangle the `commissioned_date` variable into a cleaned year column.  
+*  Used a `cumsum()` function to do a running annual total for the graphic.  
+
 ## Visualization  
 
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week44/graphics/running_ttl_viz.png)

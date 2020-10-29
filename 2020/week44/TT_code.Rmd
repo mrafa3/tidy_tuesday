@@ -83,9 +83,75 @@ turbines %>%
   distinct(commissioning_date)
 ```
 
+```{r make_year, include=TRUE}
+turbines <- turbines %>% 
+  mutate(year = substring(commissioning_date, regexpr("/", commissioning_date) + 1, nchar(commissioning_date))) %>% 
+  mutate(year = as.numeric(substring(year, regexpr("/", year) + 1, nchar(year))))
+```
+
 ```{r}
 turbines %>% 
-  group_by(province_territory, commissioning_date) %>% 
-  summarise(count = seq(n()))
+  group_by(province_territory) %>% 
+  slice_max(year)
 ```
+
+```{r prov_cols, include=TRUE}
+prov_cols <- c('Ontario' = 'steelblue4',
+               'Quebec' = 'springgreen4',
+               'Alberta' = 'gold3',
+               'Other' = 'gray70')
+
+prov_size <- c('Ontario' = 1.25,
+               'Quebec' = 1.25,
+               'Alberta' = 1.25,
+               'Other' = .9)
+```
+
+
+
+```{r running_ttl_viz, include=TRUE, fig.height=6.2}
+(running_ttl_viz <- turbines %>%  
+  group_by(province_territory, year) %>% 
+  summarise(count_new_turbines = n(), .groups='drop_last') %>% 
+  mutate(running_total_new_turbines = cumsum(count_new_turbines),
+         highlight_prov = ifelse(province_territory %in% 
+                                   c('Ontario', 'Quebec', 'Alberta'), as.character(province_territory), 'Other')) %>% 
+  ggplot(.,
+         aes(x=year,
+             y=running_total_new_turbines)) + 
+  geom_line(aes(group=province_territory,
+                color=highlight_prov,
+                size=highlight_prov)) + 
+  geom_text(data=. %>% slice_max(year) %>% filter(province_territory %in% c('Ontario', 'Quebec', 'Alberta')),
+            aes(x=year + 1,
+                label=province_territory,
+                color=highlight_prov), fontface='bold') + 
+  labs(x='',
+       y='Running total of\nnew turbines') + 
+  scale_y_continuous(labels = comma) + 
+  scale_color_manual(values = prov_cols) + 
+  scale_size_manual(values = prov_size) + 
+  my.theme + 
+  theme(legend.position = 'none',
+        axis.title.y = element_text(angle = 0)) + 
+  plot_annotation(theme = theme_jk(markdown = TRUE,
+                                   plot_title_family = "Gill Sans MT",
+                                   subtitle_family = "Gill Sans MT",
+                                   caption_family = "Gill Sans MT"),
+                  title = 'Running total of wind turbines in Canadian provinces over time',
+                  subtitle = glue({highlight_text("Ontario", "steelblue4", "b")},
+                                  ', ',
+                                  {highlight_text("Quebec", "springgreen4", "b")},
+                                  ', and ',
+                                  {highlight_text("Alberta", "gold3", "b")},
+                                  ' lead the way for Canadian provinces.<br>This graphic is measuring the count of turbines commissioned by province over time and does not consider the generating capacity<br>of each wind turbine or their decay over time. The gray lines represent other Canadian provinces that have far fewer turbines.'),
+                  caption = 'Tidy Tuesday Week 44 (2020)<br>**Source**: Government of Canada<br>Created by @mickey_rafa'))
+```
+
+
+```{r save_graphics, include=TRUE}
+ggsave("graphics/running_ttl_viz.png", running_ttl_viz,
+       width = 12, height = 7.1, dpi = 300)
+```
+
 
