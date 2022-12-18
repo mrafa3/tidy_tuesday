@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(rvest)
+library(magrittr)
+library(scales)
+library(extrafont)
+#library(ggforce)
+library(glue)
+#library(jkmisc)
+library(ggtext)
+library(patchwork)
+#library(ggridges)
+#library(ggtern)
+#library(zoo)
+#library(lubridate)
+```
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2021, week = 6)
+hbcu_all <- tuesdata$hbcu_all
+```
+
+# EDA  
+
+```{r glimpse_, include=TRUE}
+hbcu_all %>% 
+  glimpse()
+```
+
+```{r summary_, include=TRUE}
+hbcu_all %>% 
+  summary()
+```
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  plot.title = element_text(family="Courier New", color="black", face="bold", size=24, hjust=0), 
+  plot.subtitle = element_text(family="Courier New", color="black", size=12, hjust=0), 
+  axis.title = element_text(family="Courier New", color="black", face="bold", size=12), 
+  axis.text = element_text(family="Courier New", color="black", size=18), 
+  axis.ticks.y = element_blank(), 
+  plot.caption = element_text(family="Courier New", color="black", size=12), 
+  plot.background = element_blank(),
+  panel.background =  element_blank(), 
+  legend.background = element_blank(), 
+  panel.grid.major = element_line(colour = "grey90", size = 0.5),
+  panel.grid.minor = element_line(colour = "grey93", size = 0.5),
+  panel.border = element_blank(), 
+  #panel.border = element_rect(colour = "black", size = 0.5, fill=NA, linetype = 1),
+  legend.title=element_blank(), 
+  legend.text = element_text(family="Courier New", color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(family="Courier New", color="black", size=14))
+```
+
+
+
+```{r viz, include=TRUE, fig.height=6.2}
+
+```
+
+```{r save_plot, include=TRUE}
+#ggsave("graphics/strength_viz.png", strength_viz,
+ #      width = 10, height = 6.5, dpi = 300)
+```

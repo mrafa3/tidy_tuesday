@@ -4,3 +4,6 @@
 .Ruserdata
 /sample_to_copy
 debug.log
+.DS_Store
+.Rproj
+*.nb.html
