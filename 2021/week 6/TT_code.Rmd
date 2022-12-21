@@ -94,7 +94,9 @@ title <- tagList(span("**Women**", style='color:#663399;'), "enrolling in HBCUs 
 
 subtitle <- tagList(p("HBCU Enrollments by Gender: 1976 - 2015"))
   
-caption <- paste0("<span style='font-family:ubuntu;'>**Source**: TidyTuesday week 6 (2021)</span><br>",
+caption <- paste0("<span style = 'color:#ffffff;'>.....</span>",
+                  "<span style='font-family:ubuntu;'>**Source**: TidyTuesday week 6 (2021)</span><br>",
+                "<span style = 'color:#ffffff;'>.....</span>",
                 "<span style='font-family:fa-brands;'>&#xf099;</span>",
                  "<span style='font-family:ubuntu;'>@mickey.rafa</span>",
                  "<span style='font-family:ubuntu;color:white;'>....</span>",
