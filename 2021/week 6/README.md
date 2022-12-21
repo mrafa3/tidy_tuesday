@@ -1,16 +1,17 @@
 # Tidy Tuesday
-Repo for Tidy Tuesday exercise, Week 3 (2020).
+Repo for Tidy Tuesday exercise, Week 6 (2021).
 
-[Original post](https://informationisbeautiful.net/visualizations/top-500-passwords-visualized/)
+[Original post]()
 
-[Source metadata](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-01-14/readme.md)
+[Source metadata]()
 
 ## Notes  
 
 Some highlights:
 
-*  Using a `group_by()` and `mutate()` pipeline, which I don't regularly use, but comes in handy when we want to maintain the observations (instead of collapsing them). 
+*  Using the `geomtextpath::geom_textline()` function to put text on the line plot
+*  More practice with `sysfonts::font_add_google()` and `ggtext::element_textbox_simple()` in my titles and captions
 
 ## Visualization  
 
-![](https://github.com/mrafa3/tidy_tuesday/blob/master/2020/week3/graphics/strength_viz.png)
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2021/week%206/graphics/hbcu_enrollment_by_gender.png)
