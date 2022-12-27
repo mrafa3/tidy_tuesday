@@ -15,7 +15,7 @@ Some highlights:
 * It would be interesting to track appropriations over time as compared with annual visitors. Are there parks that are much more or less costly per visitor?
 * Given the different unit_type options for parks, it could be neat to do a landing page for each type (with bump charts of rankings, visitor growth, etc.
 * This project could be a neat exercise in adding the symbols of the services, pictures from Wikipedia, or other info from Wikipedia.
-* I think I've heard of a dataset on accidents at national parks. That could be cool to find and generate of accident rates per 1,000 visitors.
+* I'd be interested in doing an analysis of accidents / deaths at NPS sites. [This](https://www.psbr.law/nevada/deaths-in-us-national-parks/) analysis was already done, and I do like the way they've analyzed and visualized the data. Maybe there's an extension or replication that I can do of this?
 
 ## Visualization  
 
