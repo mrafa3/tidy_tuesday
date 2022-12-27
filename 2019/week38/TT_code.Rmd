@@ -14,7 +14,20 @@ library(glue)
 library(patchwork)
 library(ggtext)
 library(ggbump)
+library(gghighlight)
+library(sysfonts)
+library(showtext)
+library(htmltools)     #for tagList()
 ```
+
+```{r font_add, include=TRUE}
+# First argument = name in R
+# Second argument = path to .otf-file
+font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
+font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+```
+
 
 ```{r my.theme, include=TRUE}
 my.theme <- theme(
@@ -44,23 +57,80 @@ df <- tuesdata$national_parks
 df %>% 
   summary()
 ```
-
 # EDA  
 
-
-
 ```{r plot_, fig.height=6.2}
-df %>% 
+(df <- df %>% 
+  filter(year != 'Total',
+         unit_type == 'National Park') %>% 
+  mutate(year = as.numeric(year)) %>% 
+  mutate(decade = as.factor(year - (year %% 10))) %>% 
+  arrange(year) %>% 
   group_by(year) %>% 
   mutate(annual_visitor_rank = as.integer(rank(-visitors))) %>% 
   select(annual_visitor_rank, year, unit_name, visitors, everything()) %>% 
   arrange(year, annual_visitor_rank) %>% 
-  filter(annual_visitor_rank <= 10) %>% 
-  ungroup() %>%
-  distinct(unit_name)
-#should choose when to start this
+  ungroup())
 ```
 
+```{r df_premodern, include=TRUE}
+(df_premodern <- df %>%
+  filter(year <= 1966))
+```
+
+```{r df_modern, include=TRUE}
+(df_modern <- df %>% 
+  filter(year > 1966))
+```
+
+# Viz
+
+```{r highlight_parks, include=TRUE}
+(highlight_list <- df %>% 
+  filter(year ==2016,
+         annual_visitor_rank <=5) %>% 
+  pull(unit_name))
+```
+
+```{r viz_text, include=TRUE}
+title <- tagList(p('Ranking of popularity of U.S. National Parks'))
+
+subtitle <- tagList(span('*by the number of visitors annually*'))
+
+caption <- paste0("<span style='font-family:barlow;'>**Source**: Personal Fitbit data</span><br>",
+                "<span style='font-family:fa-brands;'>&#xf099;</span>",
+                 "<span style='font-family:barlow;'>@mickey.rafa</span>",
+                 "<span style='font-family:barlow;color:white;'>....</span>",
+                 "<span style='font-family:fa-brands;'>&#xf09b;</span>",
+                 "<span style='font-family:barlow;color:white;'>.</span>",
+                 "<span style='font-family:barlow;'>mrafa</span>")
+```
+
+```{r showtext, include=TRUE}
+sysfonts::font_add_google("Barlow","barlow")
+showtext::showtext_auto()
+showtext::showtext_opts(dpi=300)
+```
+
+```{r}
+df %>% 
+  ggplot(.,
+         aes(x=year,
+             y=-annual_visitor_rank,
+             group=unit_name)) + 
+  geom_line(color='gray80') + 
+  geom_line(data=. %>% filter(unit_name %in% highlight_list),
+            aes(color=unit_name)) + 
+  labs(x='',
+       title = title,
+       subtitle = subtitle,
+       caption = caption) + 
+  #gghighlight(annual_visitor_rank ==1, color=unit_name) + 
+  my.theme + 
+  theme(legend.position = 'none')
+
+
+```
 
 
 # Saving graphics  
