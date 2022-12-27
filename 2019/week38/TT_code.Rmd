@@ -285,15 +285,13 @@ df_recent_all_types %>%
 
 # Scraping Deferred Maintainance
 
-```{r}
+```{r read_maintenance_url, include=TRUE}
 url <- 'https://www.nps.gov/common/uploads/sortable_dataset/infrastructure/9143F3CC-B3B8-3F78-2F70BE310E528B37/nri-DMParkFactSheettoConverttoaCSV-Copy.csv?t=1662071341782'
 
 df_maintenance <- read_csv(url) %>% 
   clean_names() %>% 
-  #mutate_at(c(3:10), as.numeric)
   mutate(deferred_maintenance = as.numeric(gsub('[$,]', '', dm_r))) %>% 
   select(park_name, deferred_maintenance)
-
 ```
 
 ```{r}
