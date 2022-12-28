@@ -350,25 +350,40 @@ df_recent_all_types %>%
 (df_tbl <- df_annual %>% 
   group_by(unit_name) %>% 
   mutate(year_opened = min(year)) %>% 
-  filter(year == 2016) %>% 
-  select(rank_visitors_2016=annual_visitor_rank, unit_name, visitors, state, year_opened) %>% 
+  ungroup() %>% 
+  select(year, unit_name, visitors, state, year_opened) %>% 
+  filter(year %in% c(2006, 2016)) %>% 
+  spread(year, visitors) %>% 
+  mutate(percent_change_2006_2016 = (`2016` - `2006`)/`2006`,
+         rank_visitors_2006 = as.integer(rank(-`2006`)),
+         rank_visitors_2016 = as.integer(rank(-`2016`)),
+         rank_change_2016 = rank_visitors_2006 - rank_visitors_2016) %>% 
+  select(unit_name, state, year_opened, rank_visitors_2016, visitors=`2016`, 
+         percent_change_2006_2016, rank_change_2016) %>% 
   left_join(x=.,
             y=df_maintenance,
             by=c('unit_name' = 'park_name')) %>% 
   ungroup() %>% 
   mutate(deferred_maintenance = round(deferred_maintenance / 1000000, 0)) %>% 
   arrange(-visitors) %>% 
-  slice(1:10))
+  slice(1:15))
 ```
 
-```{r min_max_goals, include=TRUE}
+```{r min_max_palette, include=TRUE}
 min_visitors <- df_tbl$visitors %>% min()
 
 max_visitors <- df_tbl$visitors %>% max()
-visitors_palette <- col_numeric(c("lightgreen", "darkgreen"), 
+
+visitors_palette <- col_numeric(c("#e5f5e0", "#31a354"), 
                              domain = c(min_visitors, max_visitors), 
                              alpha = .75)
-?fmt_currency()
+
+max_deferred <- df_tbl$deferred_maintenance %>% max()
+min_deferred <- df_tbl$deferred_maintenance %>% min()
+
+deferred_palette <- col_numeric(c("#fee0d2", "#de2d26"), 
+                             domain = c(min_deferred, max_deferred), 
+                             alpha = .75)
 ```
 
 ```{r}
@@ -378,6 +393,8 @@ visitors_palette <- col_numeric(c("lightgreen", "darkgreen"),
   cols_label(rank_visitors_2016 = 'Rank Visitors (2016)',
              unit_name = 'Park',
              visitors = 'Visitors (2016)',
+             percent_change_2006_2016 = '% Change',
+             rank_change_2016 = 'Rank Change',
              state = 'State',
              year_opened = 'Year Opened',
              deferred_maintenance = 'Deferred Maintenance & Repairs Est. (2021, Millions)') %>% 
@@ -385,8 +402,19 @@ visitors_palette <- col_numeric(c("lightgreen", "darkgreen"),
   fmt_number(columns = c(visitors),
              sep_mark = ",",
              decimals = 0) %>% 
+  fmt_percent(columns = c(percent_change_2006_2016),
+              decimals = 0) %>% 
   fmt_currency(columns = c(deferred_maintenance),
                decimals = 0) %>% 
+  #add tab spanners
+  tab_spanner(
+    label = md('**2006 - 2016**'),
+    columns = c(percent_change_2006_2016, rank_change_2016)
+  ) %>% 
+   tab_spanner(
+    label = md('**2006**'),
+    columns = c(rank_visitors_2016, visitors)
+  ) %>% 
   #add table title
   tab_header(title = md("**Most Popular U.S. National Parks in 2016**"),
              subtitle = 'by estimated number of visitors') %>% 
@@ -408,6 +436,8 @@ visitors_palette <- col_numeric(c("lightgreen", "darkgreen"),
             )) %>% 
   data_color(columns = c(visitors),
              colors = visitors_palette) %>% 
+  data_color(columns = c(deferred_maintenance),
+             colors = deferred_palette) %>% 
   opt_all_caps() %>% 
   opt_table_font(
     font = list(
