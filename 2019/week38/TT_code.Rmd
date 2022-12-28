@@ -17,6 +17,7 @@ library(ggbump)
 library(gghighlight)
 library(sysfonts)
 library(showtext)
+library(gt)
 library(janitor)       #for clean_names()
 library(htmltools)     #for tagList()
 ```
@@ -146,11 +147,20 @@ df_premodern %>%
   geom_line(color='gray80') + 
   geom_line(data=. %>% filter(unit_name %in% highlight_list_premodern),
             aes(color=unit_name)) + 
+  geom_text(
+    data = df_premodern %>% filter(year == 1966, unit_name %in% highlight_list_premodern),
+    aes(label = paste("#", annual_visitor_rank, unit_name),
+        color = unit_name),
+    hjust = 0,
+    nudge_x = 1,
+    size = 3,
+    fontface = 'bold') + 
   labs(x='',
        title = title,
        subtitle = subtitle,
        caption = caption) + 
-  #gghighlight(annual_visitor_rank ==1, color=unit_name) + 
+  scale_x_continuous(limits = c(1904, 1985)) + 
+  #coord_cartesian(xlim = c(1900, 2015), ylim = c(21, 0), expand = F) + 
   my.theme + 
   theme(legend.position = 'none')
 ```
@@ -199,7 +209,7 @@ df_decade %>%
     nudge_x = 1,
     size = 5,
     fontface = 'bold'
-  ) +
+  ) + 
   annotate(
     'text',
     x = c(1930, 2010),
@@ -334,6 +344,95 @@ df_recent_all_types %>%
 ```
 
 
+# Table 
+
+```{r}
+(df_tbl <- df_annual %>% 
+  group_by(unit_name) %>% 
+  mutate(year_opened = min(year)) %>% 
+  filter(year == 2016) %>% 
+  select(rank_visitors_2016=annual_visitor_rank, unit_name, visitors, state, year_opened) %>% 
+  left_join(x=.,
+            y=df_maintenance,
+            by=c('unit_name' = 'park_name')) %>% 
+  ungroup() %>% 
+  mutate(deferred_maintenance = round(deferred_maintenance / 1000000, 0)) %>% 
+  arrange(-visitors) %>% 
+  slice(1:10))
+```
+
+```{r min_max_goals, include=TRUE}
+min_visitors <- df_tbl$visitors %>% min()
+
+max_visitors <- df_tbl$visitors %>% max()
+visitors_palette <- col_numeric(c("lightgreen", "darkgreen"), 
+                             domain = c(min_visitors, max_visitors), 
+                             alpha = .75)
+?fmt_currency()
+```
+
+```{r}
+(tbl_viz <- df_tbl %>% 
+  gt() %>% 
+  #rename columns
+  cols_label(rank_visitors_2016 = 'Rank Visitors (2016)',
+             unit_name = 'Park',
+             visitors = 'Visitors (2016)',
+             state = 'State',
+             year_opened = 'Year Opened',
+             deferred_maintenance = 'Deferred Maintenance & Repairs Est. (2021, Millions)') %>% 
+  #format numeric columns
+  fmt_number(columns = c(visitors),
+             sep_mark = ",",
+             decimals = 0) %>% 
+  fmt_currency(columns = c(deferred_maintenance),
+               decimals = 0) %>% 
+  #add table title
+  tab_header(title = md("**Most Popular U.S. National Parks in 2016**"),
+             subtitle = 'by estimated number of visitors') %>% 
+  tab_source_note(source_note = md("Visitor data sourced from Tidy Tuesday Week 38 (2019)<br>Deffered Maintenance & Repairs estimates sourced from nps.gov")) %>% 
+  #apply new style to all column headers
+  tab_style(
+    locations = cells_column_labels(columns = everything()),
+    style = list(
+      #thick border
+      cell_borders(sides = "bottom", weight = px(3)),
+      #make text bold
+      cell_text(weight = "bold")
+    )
+  ) %>% 
+  #apply different style to title
+  tab_style(locations = cells_title(groups = "title"),
+            style = list(
+              cell_text(weight = "bold", size = 24)
+            )) %>% 
+  data_color(columns = c(visitors),
+             colors = visitors_palette) %>% 
+  opt_all_caps() %>% 
+  opt_table_font(
+    font = list(
+      google_font("Chivo"),
+      default_fonts()
+    )
+  ) %>% 
+  tab_options(
+    #remove border between column headers and title
+    column_labels.border.top.width = px(3),
+    column_labels.border.top.color = "transparent",
+    #remove border around the table
+    table.border.top.color = "transparent",
+    table.border.bottom.color = "transparent",
+    #adjust font sizes and alignment
+    source_notes.font.size = 12,
+    heading.align = "left"
+  ))
+```
+
+To-do:
+
+* Adding decade over decade % change would be neat
+* Format the numbers in the table
+* Add
 
 
 # Saving graphics  
