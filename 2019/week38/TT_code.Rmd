@@ -24,11 +24,16 @@ library(htmltools)     #for tagList()
 ```{r font_add, include=TRUE}
 # First argument = name in R
 # Second argument = path to .otf-file
-font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+#font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
 font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
-font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+#font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
 ```
 
+```{r showtext, include=TRUE}
+sysfonts::font_add_google("Lato","lato")
+showtext::showtext_auto()
+showtext::showtext_opts(dpi=300)
+```
 
 ```{r my.theme, include=TRUE}
 my.theme <- theme(
@@ -48,8 +53,6 @@ my.theme <- theme(
   legend.text = element_text(color="black", size=12, hjust=0),
   legend.position = 'top',
   strip.text = element_text(color="black", size=14))
-
-theme_void()
 ```
 
 ```{r read_data, include=TRUE}
@@ -109,12 +112,6 @@ caption <- paste0("<span style='font-family:lato;'>**Source**: TidyTuesday Week 
                  "<span style='font-family:lato;'>mrafa</span>")
 ```
 
-```{r showtext, include=TRUE}
-sysfonts::font_add_google("Lato","lato")
-showtext::showtext_auto()
-showtext::showtext_opts(dpi=300)
-```
-
 ```{r}
 df_annual %>% 
   ggplot(.,
@@ -123,6 +120,31 @@ df_annual %>%
              group=unit_name)) + 
   geom_line(color='gray80') + 
   geom_line(data=. %>% filter(unit_name %in% highlight_list_annual),
+            aes(color=unit_name)) + 
+  labs(x='',
+       title = title,
+       subtitle = subtitle,
+       caption = caption) + 
+  #gghighlight(annual_visitor_rank ==1, color=unit_name) + 
+  my.theme + 
+  theme(legend.position = 'none')
+```
+
+```{r highlight_parks_premodern, include=TRUE}
+(highlight_list_premodern <- df_premodern %>% 
+  filter(year == 1966,
+         annual_visitor_rank <=5) %>% 
+  pull(unit_name))
+```
+
+```{r}
+df_premodern %>% 
+  ggplot(.,
+         aes(x=year,
+             y=-annual_visitor_rank,
+             group=unit_name)) + 
+  geom_line(color='gray80') + 
+  geom_line(data=. %>% filter(unit_name %in% highlight_list_premodern),
             aes(color=unit_name)) + 
   labs(x='',
        title = title,
@@ -145,6 +167,7 @@ df_annual %>%
   summarise(visitors_by_decade = sum(visitors, na.rm = TRUE)) %>% 
   mutate(rank_visitors_by_decade = as.integer(rank(-visitors_by_decade))))
 ```
+
 ```{r}
 color_palette <- viridisLite::mako(8)
 description_color <- 'grey40'
