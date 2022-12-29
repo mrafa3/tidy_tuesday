@@ -451,9 +451,9 @@ deferred_palette <- col_numeric(c("#fee0d2", "#de2d26"),
 (tbl_viz <- df_tbl %>% 
   gt() %>% 
   #rename columns
-  cols_label(rank_visitors_2016 = 'Rank Visitors (2016)',
+  cols_label(rank_visitors_2016 = 'Rank Visitors',
              unit_name = 'Park',
-             visitors = 'Visitors (2016)',
+             visitors = 'Visitors',
              percent_change_2006_2016 = '% Change',
              rank_change_2016 = 'Rank Change',
              state = 'State',
