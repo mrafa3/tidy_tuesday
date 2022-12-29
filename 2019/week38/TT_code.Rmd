@@ -473,7 +473,7 @@ deferred_palette <- col_numeric(c("#fee0d2", "#de2d26"),
     columns = c(percent_change_2006_2016, rank_change_2016)
   ) %>% 
    tab_spanner(
-    label = md('**2006**'),
+    label = md('**2016**'),
     columns = c(rank_visitors_2016, visitors)
   ) %>% 
   #add table title
@@ -522,3 +522,7 @@ deferred_palette <- col_numeric(c("#fee0d2", "#de2d26"),
 ```{r save_tbl1, include=TRUE}
 tbl_viz %>% gtsave(filename = "graphics/tbl_viz.png")
 ```
+
+
+# 
+
