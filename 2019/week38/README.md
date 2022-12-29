@@ -20,4 +20,10 @@ Some highlights:
 
 ## Visualization  
 
-![]()
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2019/week38/graphics/plot_viz_538.png)
+
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2019/week38/graphics/plot_viz_premodern.png)
+
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2019/week38/graphics/plot_viz_decade_bump.png)
+
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2019/week38/graphics/tbl_viz.png)
