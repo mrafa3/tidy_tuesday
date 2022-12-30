@@ -524,5 +524,37 @@ tbl_viz %>% gtsave(filename = "graphics/tbl_viz.png")
 ```
 
 
-# 
+# Map attempt
+
+```{r}
+df_annual %>% 
+  group_by(unit_name) %>% 
+  mutate(year_opened = min(year)) %>% 
+  ungroup() %>% 
+  #select(year, unit_name, visitors, state, year_opened) %>% 
+  filter(year %in% c(2006, 2016)) %>% 
+  spread(year, visitors) %>% 
+  mutate(percent_change_2006_2016 = (`2016` - `2006`)/`2006`,
+         rank_visitors_2006 = as.integer(rank(-`2006`)),
+         rank_visitors_2016 = as.integer(rank(-`2016`)),
+         rank_change_2016 = rank_visitors_2006 - rank_visitors_2016) %>% 
+  select(unit_name, state, year_opened, rank_visitors_2016, visitors=`2016`, 
+         percent_change_2006_2016, rank_change_2016) %>% 
+  left_join(x=.,
+            y=df_maintenance,
+            by=c('unit_name' = 'park_name')) %>% 
+  ungroup() %>% 
+  mutate(deferred_maintenance = round(deferred_maintenance / 1000000, 0)) %>% 
+  arrange(-visitors)
+  left_join(x=.,
+            y=df,
+            by='unit_name')
+```
+
+```{r}
+library(sf)
+
+shape <- read_sf(dsn = "./data/nps_boundary_centroids.shp", layer = "SHAPEFILE")
+```
+
 
