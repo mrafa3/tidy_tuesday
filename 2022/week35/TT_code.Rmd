@@ -1,0 +1,70 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Setup
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+library(extrafont)
+library(glue)
+library(patchwork)
+library(ggtext)
+library(ggbump)
+library(gghighlight)
+library(sysfonts)
+library(showtext)
+library(gt)
+library(gtExtras)      #for font awesome icons in gt tables
+library(janitor)       #for clean_names()
+library(htmltools)     #for tagList()
+```
+
+```{r font_add, include=TRUE}
+# First argument = name in R
+# Second argument = path to .otf-file
+#font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
+#font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+```
+
+```{r showtext, include=TRUE}
+sysfonts::font_add_google("Lato","lato")
+showtext::showtext_auto()
+showtext::showtext_opts(dpi=300)
+```
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  text = element_text(family = 'lato'), 
+  plot.title = element_textbox_simple(color="black", face="bold", size=20, hjust=0), 
+  plot.subtitle = element_textbox_simple(color="black", size=12, hjust=0), 
+  axis.title = element_blank(), 
+  axis.text = element_blank(), 
+  axis.ticks = element_blank(),
+  axis.line = element_blank(), 
+  plot.caption = element_textbox_simple(color="black", size=12), 
+  panel.background =  element_blank(), 
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(), 
+  legend.title=element_blank(), 
+  legend.text = element_text(color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(color="black", size=14))
+```
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2022, week = 35)
+
+df <- tuesdata$pell
+```
+
+```{r df_summary, include=TRUE}
+df %>% 
+  summary()
+```
+# 
