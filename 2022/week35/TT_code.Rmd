@@ -112,12 +112,6 @@ twitter <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf099;</span
 github <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf09b;</span>")
 #floppy <- glue("<span style='font-family:fa-solid; color:{txt}'>&#xf0c7;</span>")
 space <- glue("<span style='color:black;font-size:1px'>'</span>")
-
-
-subtitle <- glue(
-"Almost 60% (1252/2122) of Star Trek narratives<br>
-across all formats occur between the years<br>
-2351 and 2380 {spock}")
 ```
 
 ```{r}
