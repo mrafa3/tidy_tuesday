@@ -8,37 +8,39 @@ output: html_notebook
 ```{r setup, include=TRUE}
 library(tidyverse)
 #library(tidytuesdayR)
-library(scales)
+#library(scales)
 library(glue)
-library(patchwork)
+#library(patchwork)
 library(ggtext)
 library(sysfonts)
 library(showtext)
-library(extrafont)
-library(gt)            #for great tables
+#library(gt)            #for great tables
 library(camcorder)     #for recording viz evoluation & fixing canvas size
-library(gtExtras)      #for font awesome icons in gt tables
+#library(gtExtras)      #for font awesome icons in gt tables
 library(janitor)       #for clean_names()
-
+library(hms)           #for as_hms()
 #for special viz types
 #library(ggbump)
 #library(gghighlight)
 
 #for irregular functions
+#library(extrafont)
 #library(htmltools)     #for tagList()
 ```
 
 ```{r fonts, include=TRUE}
 # First argument = name in R
 # Second argument = path to .otf-file
-font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+#font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
 font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
-font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+#font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
 
 sysfonts::font_add_google("Lato","lato")
 showtext::showtext_auto()
 showtext::showtext_opts(dpi=300)
 ```
+
+
 
 ```{r icons, include=TRUE}
 txt <- 'black'
@@ -53,10 +55,10 @@ my.theme <- theme(
   text = element_text(family = 'lato'), 
   plot.title = element_textbox_simple(color="black", face="bold", size=20, hjust=0), 
   plot.subtitle = element_textbox_simple(color="black", size=12, hjust=0), 
-  #axis.title = element_blank(), 
-  #axis.text = element_blank(), 
+  axis.title = element_blank(), 
+  axis.text = element_blank(), 
   axis.ticks = element_blank(),
-  #axis.line = element_blank(), 
+  axis.line = element_blank(), 
   plot.caption = element_textbox_simple(color="black", size=12), 
   panel.background =  element_blank(), 
   panel.grid.major = element_blank(),
@@ -77,12 +79,14 @@ df <- read_csv('./data/huckleberry_myles.csv') %>%
 df %>% 
   summary()
 ```
-```{r}
-df %>% 
-  mutate(date = lubridate::as_date(start)) %>% 
+```{r add_hms, include=TRUE}
+(df <- df %>% 
+  mutate(date = lubridate::as_date(start),
+         start_time = hms::as_hms(start),
+         end_time = hms::as_hms(end)) %>% 
   select(date, everything()) %>% 
   arrange(date) %>% 
-  filter(type == 'sleep')
+  filter(type == 'sleep'))
 ```
 
 
@@ -96,27 +100,31 @@ camcorder::gg_record(
 
 
 ```{r viz_text, include=TRUE}
-title_text <- ''
-subtitle_text <- ''
+title_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Sleep</span> and wake patterns of our newborn")
+
 caption_text <- glue("Tidy Tuesday Week 1 (2023)<br>{twitter} @mickey.rafa • {github} mrafa3/tidy_tuesday")
+
+alt_text <- 'Stylized circular plot showing the sleep times of our child, Myles, from 4/14/2019 to 7/8/2019. White space indicates wake time during the day.'
 ```
 
-
-```{r}
-df %>% 
-  filter(type == 'sleep') %>% 
-  arrange(start)%>% 
-  ggplot(.,
-         aes(x=duration,
-             y=as.Date(start)),
-         color='cornflowerblue') + 
-  geom_col()
-
+```{r viz, include=TRUE}
+(plot_circular <- df %>% 
+  ggplot(.) + 
+  geom_segment(aes(x=start_time,
+                   xend=end_time,
+                   y=date,
+                   yend=date), 
+               color='cornflowerblue') + 
+  coord_polar(clip = 'off') + 
+  labs(title = title_text,
+       caption = caption_text,
+       alt = alt_text) + 
+  my.theme)
 ```
 
 
 ```{r save_plot, include=TRUE}
-ggsave("", ,
+ggsave("./graphics/plot_circular.png", plot_circular,
        width = 10, height = 6.5, dpi = 300)
 ```
 
