@@ -1,0 +1,121 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Setup
+
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+library(extrafont)
+library(glue)
+library(patchwork)
+library(ggtext)
+library(ggbump)
+library(gghighlight)
+library(sysfonts)
+library(showtext)
+library(gt)
+library(camcorder)
+library(gtExtras)      #for font awesome icons in gt tables
+library(janitor)       #for clean_names()
+library(htmltools)     #for tagList()
+```
+
+```{r font_add, include=TRUE}
+# First argument = name in R
+# Second argument = path to .otf-file
+#font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
+#font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+```
+
+```{r showtext, include=TRUE}
+sysfonts::font_add_google("Lato","lato")
+showtext::showtext_auto()
+showtext::showtext_opts(dpi=300)
+```
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  text = element_text(family = 'lato'), 
+  plot.title = element_textbox_simple(color="black", face="bold", size=20, hjust=0), 
+  plot.subtitle = element_textbox_simple(color="black", size=12, hjust=0), 
+  #axis.title = element_blank(), 
+  #axis.text = element_blank(), 
+  axis.ticks = element_blank(),
+  #axis.line = element_blank(), 
+  plot.caption = element_textbox_simple(color="black", size=12), 
+  panel.background =  element_blank(), 
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(), 
+  legend.title=element_blank(), 
+  legend.text = element_text(color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(color="black", size=14))
+```
+
+```{r}
+txt <- 'black'
+twitter <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf099;</span>")
+github <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf09b;</span>")
+#floppy <- glue("<span style='font-family:fa-solid; color:{txt}'>&#xf0c7;</span>")
+```
+
+
+```{r read_data, include=TRUE}
+tuesdata <- tidytuesdayR::tt_load(2022, week = 13)
+
+df <- tuesdata$sports 
+```
+
+```{r df_summary, include=TRUE}
+df %>% 
+  summary()
+```
+
+```{r}
+(df_wvu <- df %>% 
+  filter(institution_name == 'West Virginia University') %>% 
+  select(year, institution_name, sports, total_rev_menwomen) %>% 
+  group_by(year, institution_name) %>% 
+  mutate(perc_revenue = total_rev_menwomen / sum(total_rev_menwomen, na.rm = TRUE),
+         is_football = ifelse(sports == 'Football', 'Football', 'Non-Football')))
+```
+
+```{r start_camcorder, include=TRUE}
+camcorder::gg_record(
+  dir = 'img', dpi = 300, width = 16, height = 9, units = 'cm'
+)
+```
+
+
+
+
+# Viz
+
+```{r}
+df_wvu %>% 
+  ggplot(.,
+         aes(x=year,
+             y=perc_revenue,
+             fill=is_football)) + 
+  geom_col()
+```
+
+```{r viz_text, include=TRUE}
+title_text <- 'Pell Grant Award Value per Recipient'
+subtitle_text <- glue("<span style='color:#6ED187'>Min</span> and <span style='color:#645A7B'>Max</span> values each year in Colorado")
+caption_text <- glue("Tidy Tuesday Week 13 (2022)<br>{twitter} @mickey.rafa • {github} mrafa3/tidy_tuesday")
+```
+
+
+
+```{r save_plot, include=TRUE}
+ggsave("", ,
+       width = 10, height = 6.5, dpi = 300)
+```
+
