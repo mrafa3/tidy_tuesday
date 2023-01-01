@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Setup
+
+```{r setup, include=TRUE}
+library(tidyverse)
+#library(tidytuesdayR)
+library(scales)
+library(glue)
+library(patchwork)
+library(ggtext)
+library(sysfonts)
+library(showtext)
+library(extrafont)
+library(gt)            #for great tables
+library(camcorder)     #for recording viz evoluation & fixing canvas size
+library(gtExtras)      #for font awesome icons in gt tables
+library(janitor)       #for clean_names()
+
+#for special viz types
+#library(ggbump)
+#library(gghighlight)
+
+#for irregular functions
+#library(htmltools)     #for tagList()
+```
+
+```{r fonts, include=TRUE}
+# First argument = name in R
+# Second argument = path to .otf-file
+font_add('fa-reg', 'fonts/Font Awesome 6 Free-Regular-400.otf')
+font_add('fa-brands', 'fonts/Font Awesome 6 Brands-Regular-400.otf')
+font_add('fa-solid', 'fonts/Font Awesome 6 Free-Solid-900.otf')
+
+sysfonts::font_add_google("Lato","lato")
+showtext::showtext_auto()
+showtext::showtext_opts(dpi=300)
+```
+
+```{r icons, include=TRUE}
+txt <- 'black'
+twitter <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf099;</span>")
+github <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf09b;</span>")
+#floppy <- glue("<span style='font-family:fa-solid; color:{txt}'>&#xf0c7;</span>")
+space <- glue("<span style='color:black;font-size:1px'>'</span>")
+```
+
+```{r my.theme, include=TRUE}
+my.theme <- theme(
+  text = element_text(family = 'lato'), 
+  plot.title = element_textbox_simple(color="black", face="bold", size=20, hjust=0), 
+  plot.subtitle = element_textbox_simple(color="black", size=12, hjust=0), 
+  #axis.title = element_blank(), 
+  #axis.text = element_blank(), 
+  axis.ticks = element_blank(),
+  #axis.line = element_blank(), 
+  plot.caption = element_textbox_simple(color="black", size=12), 
+  panel.background =  element_blank(), 
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(), 
+  legend.title=element_blank(), 
+  legend.text = element_text(color="black", size=12, hjust=0),
+  legend.position = 'top',
+  strip.text = element_text(color="black", size=14))
+```
+
+```{r read_data, include=TRUE}
+df <- read_csv('./data/huckleberry_myles.csv') %>% 
+  clean_names()
+```
+
+```{r df_summary, include=TRUE}
+df %>% 
+  summary()
+```
+```{r}
+df %>% 
+  mutate(date = lubridate::as_date(start)) %>% 
+  select(date, everything()) %>% 
+  arrange(date) %>% 
+  filter(type == 'sleep')
+```
+
+
+# Viz
+
+```{r start_camcorder, include=TRUE}
+camcorder::gg_record(
+  dir = 'img', dpi = 300, width = 16, height = 9, units = 'cm'
+)
+```
+
+
+```{r viz_text, include=TRUE}
+title_text <- ''
+subtitle_text <- ''
+caption_text <- glue("Tidy Tuesday Week 1 (2023)<br>{twitter} @mickey.rafa • {github} mrafa3/tidy_tuesday")
+```
+
+
+```{r}
+df %>% 
+  filter(type == 'sleep') %>% 
+  arrange(start)%>% 
+  ggplot(.,
+         aes(x=duration,
+             y=as.Date(start)),
+         color='cornflowerblue') + 
+  geom_col()
+
+```
+
+
+```{r save_plot, include=TRUE}
+ggsave("", ,
+       width = 10, height = 6.5, dpi = 300)
+```
+
