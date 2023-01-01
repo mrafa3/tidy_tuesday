@@ -104,7 +104,7 @@ title_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Sleep</spa
 
 subtitle_text <- 'from April 14, 2019 to July 8, 2019'
 
-caption_text <- glue("Tidy Tuesday Week 1 (2023)<br>{twitter} @mickey.rafa • {github} mrafa3/tidy_tuesday")
+caption_text <- glue("Tidy Tuesday Week 1 (2023)<br>{twitter} @mickey.rafa • {github} mrafa3/tidy_tuesday<br>Source: Personal recordings from Huckleberry app")
 
 alt_text <- 'Stylized circular plot showing the sleep times of our child, Myles, from 4/14/2019 to 7/8/2019. White space indicates wake time during the day.'
 ```
