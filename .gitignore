@@ -8,5 +8,5 @@ debug.log
 *.Rproj
 *.nb.html
 /fonts
-/2022/week35/img
 TEMPLATE_TT_code.Rmd
+img/
