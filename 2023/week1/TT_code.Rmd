@@ -10,7 +10,7 @@ library(tidyverse)
 #library(tidytuesdayR)
 #library(scales)
 library(glue)
-#library(patchwork)
+library(patchwork)
 library(ggtext)
 library(sysfonts)
 library(showtext)
@@ -39,8 +39,6 @@ sysfonts::font_add_google("Lato","lato")
 showtext::showtext_auto()
 showtext::showtext_opts(dpi=300)
 ```
-
-
 
 ```{r icons, include=TRUE}
 txt <- 'black'
@@ -89,7 +87,6 @@ df %>%
   filter(type == 'sleep'))
 ```
 
-
 # Viz
 
 ```{r start_camcorder, include=TRUE}
@@ -97,7 +94,6 @@ camcorder::gg_record(
   dir = 'img', dpi = 300, width = 16, height = 9, units = 'cm'
 )
 ```
-
 
 ```{r viz_text, include=TRUE}
 title_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Sleep</span> and wake patterns of our newborn")
@@ -118,16 +114,54 @@ alt_text <- 'Stylized circular plot showing the sleep times of our child, Myles,
                    yend=date), 
                color='cornflowerblue') + 
   coord_polar(clip = 'off') + 
-  labs(title = title_text,
-       subtitle = subtitle_text,
-       caption = caption_text,
-       alt = alt_text) + 
+  labs(alt = alt_text) + 
   my.theme)
+```
+
+Experimenting with example by Albert Rapp...
+
+```{r explainer_text, include=TRUE}
+# Save text data in a tibble
+tib_summary_text <- tibble(
+  x = 0, 
+  y = 0.5, 
+  label = c("**How to read this chart:**<span style = 'color:cornflowerblue'> **BLUE segments**</span><br>represent times when Myles slept. Each circle<br>represents a single day, with inner circles<br>illustrating days in April 2019 and outer circles<br>illustrating days in July 2019."))
+
+# Create text plot with geom_richtext() and theme_void()
+(text_plot <- tib_summary_text %>% 
+  ggplot() +
+  geom_richtext(
+    aes(x, y, label = label),
+    size = 3,
+    hjust = 0,
+    vjust = 0,
+    label.colour = NA
+  ) +
+  coord_cartesian(xlim = c(0, 1), ylim = c(0, 2), clip = 'off') +
+  # clip = 'off' is important for putting it together later.
+  theme_void())
+```
+
+
+```{r add_patchwork, include=TRUE}
+(plot_circular_2 <- plot_circular + 
+  text_plot + 
+  plot_layout(widths = c(0.55, 0.45)) + 
+  plot_annotation(
+    title = title_text,
+    subtitle = subtitle_text,
+    caption = caption_text, 
+    theme = theme(text = element_text(family = 'lato'),
+                  plot.title = element_textbox_simple(color="black", 
+                                                      face="bold", size=24, hjust=0), 
+                  plot.subtitle = element_textbox_simple(color="black", size=15, hjust=0), 
+                  plot.caption = element_textbox_simple(color="black", size=10), 
+      plot.background = element_rect(fill = 'white', colour = NA))))
 ```
 
 
 ```{r save_plot, include=TRUE}
-ggsave("./graphics/plot_circular.png", plot_circular,
+ggsave("./graphics/plot_circular.png", plot_circular_2,
        width = 10, height = 6.5, dpi = 300)
 ```
 
