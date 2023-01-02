@@ -144,7 +144,7 @@ tib_summary_text <- tibble(
 
 
 ```{r add_patchwork, include=TRUE}
-(plot_circular_2 <- plot_circular + 
+plot_circular_2 <- plot_circular + 
   text_plot + 
   plot_layout(widths = c(0.55, 0.45)) + 
   plot_annotation(
@@ -153,15 +153,22 @@ tib_summary_text <- tibble(
     caption = caption_text, 
     theme = theme(text = element_text(family = 'lato'),
                   plot.title = element_textbox_simple(color="black", 
-                                                      face="bold", size=24, hjust=0), 
-                  plot.subtitle = element_textbox_simple(color="black", size=15, hjust=0), 
+                                                      face="bold", size=22, hjust=0), 
+                  plot.subtitle = element_textbox_simple(color="black", size=13, hjust=0), 
                   plot.caption = element_textbox_simple(color="black", size=10), 
-      plot.background = element_rect(fill = 'white', colour = NA))))
+      plot.background = element_rect(fill = 'white', colour = NA)))
+
+plot_circular_2
+ggsave("./graphics/plot_circular_2.png", 
+       plot_circular_2,
+       width = 40, 
+       height = 40 * 9 / 16,
+       units = 'cm')
 ```
 
 
 ```{r save_plot, include=TRUE}
-ggsave("./graphics/plot_circular.png", plot_circular_2,
+ggsave("./graphics/plot_circular_test.png", plot_circular_2,
        width = 10, height = 6.5, dpi = 300)
 ```
 
