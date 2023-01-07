@@ -7,14 +7,12 @@ Bring your own data!
 
 Some highlights:
 
+* I used `patchwork::` and Albert Rapp's [tutorial](https://albert-rapp.de/posts/ggplot2-tips/10_recreating_swd_look/10_recreating_swd_look.html) to have a text-only ggplot object used by `patchwork::`.
 * Used `geom_segment()` and `coord_polar()` to build a circular plot of Myles' sleep/wake times from his first few months
 
 ## Future ideas
 
-* To do: I used `patchwork::` and Albert Rapp's [tutorial](https://albert-rapp.de/posts/ggplot2-tips/10_recreating_swd_look/10_recreating_swd_look.html) to have a text-only ggplot object used by `patchwork::`. But I can't seem to figure out how to save this `patchwork::` object with `ggsave()`, so I'm missing the "how to read this chart"
-* Plan to get more data from Huckleberry, so I'd like to update it then.
-
 
 ## Visualization  
 
-![](https://github.com/mrafa3/tidy_tuesday/blob/master/2023/week1/graphics/plot_circular.png)
+![](https://github.com/mrafa3/tidy_tuesday/blob/master/2023/week1/graphics/circular_plot.png)
