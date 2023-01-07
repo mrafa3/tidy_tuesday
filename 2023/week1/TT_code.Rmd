@@ -65,26 +65,44 @@ my.theme <- theme(
   legend.title=element_blank(), 
   legend.text = element_text(color="black", size=12, hjust=0),
   legend.position = 'top',
-  strip.text = element_text(color="black", size=14))
+  strip.text = element_text(color="black", size=14, face='bold'),
+  strip.background = element_blank())
 ```
 
 ```{r read_data, include=TRUE}
-df <- read_csv('./data/huckleberry_myles.csv') %>% 
-  clean_names()
+df_myles <- read_csv('./data/huckleberry_myles2.csv') %>% 
+  clean_names() %>% 
+  mutate(name = as.factor('Myles'))
+
+df_hazel <- read_csv('./data/huckleberry_hazel.csv') %>% 
+  clean_names() %>% 
+  mutate(name = as.factor('Hazel'))
 ```
 
-```{r df_summary, include=TRUE}
-df %>% 
-  summary()
-```
 ```{r add_hms, include=TRUE}
-(df <- df %>% 
+df_myles <- df_myles %>% 
   mutate(date = lubridate::as_date(start),
          start_time = hms::as_hms(start),
-         end_time = hms::as_hms(end)) %>% 
-  select(date, everything()) %>% 
+         end_time = hms::as_hms(end),
+         dob = lubridate::as_date('2019-04-12'),
+         age = date - dob) %>% 
+  select(date, name, type, start_time, end_time, age) %>% 
   arrange(date) %>% 
-  filter(type == 'sleep'))
+  filter(type == 'Sleep',
+         age <= 30)
+
+df_hazel <- df_hazel %>% 
+  mutate(date = lubridate::as_date(start),
+         start_time = hms::as_hms(start),
+         end_time = hms::as_hms(end),
+         dob = lubridate::as_date('2021-02-03'),
+         age = date - dob) %>% 
+  select(date, name, type, start_time, end_time, age) %>% 
+  arrange(date) %>% 
+  filter(type == 'Sleep',
+         age <= 30)
+
+df_combined <- bind_rows(df_myles, df_hazel)
 ```
 
 # Viz
@@ -96,26 +114,31 @@ camcorder::gg_record(
 ```
 
 ```{r viz_text, include=TRUE}
-title_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Sleep</span> and wake patterns of our newborn")
+title_text <- 'Learning to sleep is hard work'
 
-subtitle_text <- 'from April 14, 2019 to July 8, 2019'
+subtitle_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Myles</span> and <span style='color:#9e9ac8;font-face:bold'>Hazel's</span> sleep patterns during their first month")
 
-caption_text <- glue("Tidy Tuesday Week 1 (2023)<br>{twitter} @mickey.rafa • {github} mrafa3/tidy_tuesday<br>Source: Personal recordings from Huckleberry app")
+caption_text <- glue("Tidy Tuesday Week 1 (2023) #byoDATA<br>{twitter} @mickey_rafa • {github} mrafa3/tidy_tuesday<br>Source: Personal recordings from Huckleberry app")
 
-alt_text <- 'Stylized circular plot showing the sleep times of our child, Myles, from 4/14/2019 to 7/8/2019. White space indicates wake time during the day.'
+alt_text <- 'Stylized circular plot showing the sleep times of our children, Hazel and Myles, during their first month. White space indicates wake time during the day.'
 ```
 
 ```{r viz, include=TRUE}
-(plot_circular <- df %>% 
+(plot_circular <- df_combined %>% 
   ggplot(.) + 
   geom_segment(aes(x=start_time,
                    xend=end_time,
-                   y=date,
-                   yend=date), 
-               color='cornflowerblue') + 
+                   y=age,
+                   yend=age,
+                   color=name)) + 
+  facet_wrap(~name) + 
   coord_polar(clip = 'off') + 
   labs(alt = alt_text) + 
-  my.theme)
+  scale_color_manual(values = c('Myles' = 'cornflowerblue',
+                                'Hazel' = '#9e9ac8')) + 
+  my.theme + 
+  theme(legend.position = 'none',
+        strip.text = element_blank()))
 ```
 
 Experimenting with example by Albert Rapp...
@@ -124,15 +147,16 @@ Experimenting with example by Albert Rapp...
 # Save text data in a tibble
 tib_summary_text <- tibble(
   x = 0, 
-  y = 0.5, 
-  label = c("**How to read this chart:**<span style = 'color:cornflowerblue'> **BLUE segments**</span><br>represent times when Myles slept. Each circle<br>represents a single day, with inner circles<br>illustrating days in April 2019 and outer circles<br>illustrating days in July 2019."))
+  y = 0.15, 
+  label = c("**How to read this (ch)art:** colored<br>segments represent times when<br><span style = 'color:cornflowerblue'>**Myles**</span> or <span style = 'color:#9e9ac8'>**Hazel**</span> slept during their<br>first month. Each circle represents<br>a single day, with inner circles<br>illustrating newborn days and outer<br>circles illustrating days near 30 days<br>since birth.<br><br>Data quality may have suffered due<br>to sleep quality."))
 
 # Create text plot with geom_richtext() and theme_void()
 (text_plot <- tib_summary_text %>% 
   ggplot() +
   geom_richtext(
     aes(x, y, label = label),
-    size = 3,
+    size = 3.6,
+    family = 'lato',
     hjust = 0,
     vjust = 0,
     label.colour = NA
@@ -154,16 +178,14 @@ plot_circular_2 <- plot_circular +
     theme = theme(text = element_text(family = 'lato'),
                   plot.title = element_textbox_simple(color="black", 
                                                       face="bold", size=22, hjust=0), 
-                  plot.subtitle = element_textbox_simple(color="black", size=13, hjust=0), 
-                  plot.caption = element_textbox_simple(color="black", size=10), 
+                  plot.subtitle = element_textbox_simple(color="black", size=14, hjust=0), 
+                  plot.caption = element_textbox_simple(color="black", size=9), 
       plot.background = element_rect(fill = 'white', colour = NA)))
-
 plot_circular_2
-ggsave("./graphics/plot_circular_2.png", 
-       plot_circular_2,
-       width = 40, 
-       height = 40 * 9 / 16,
-       units = 'cm')
+ggsave("./graphics/plot_circular_3.png", 
+       width = 10, 
+       height = 6.5,
+       dpi = 300)
 ```
 
 
