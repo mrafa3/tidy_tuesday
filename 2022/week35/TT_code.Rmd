@@ -21,7 +21,11 @@ library(gt)
 library(camcorder)
 library(gtExtras)      #for font awesome icons in gt tables
 library(janitor)       #for clean_names()
-library(htmltools)     #for tagList()
+#library(htmltools)     #for tagList()
+#install.packages("ggchicklet", repos = "https://cinc.rud.is")
+library(ggchicklet)
+library(namespace)
+devtools::install_github("doehm/eyedroppeR")
 ```
 
 ```{r font_add, include=TRUE}
@@ -57,6 +61,13 @@ my.theme <- theme(
   legend.position = 'top',
   strip.text = element_text(color="black", size=14))
 ```
+
+```{r}
+pal <- eyedropper(n = 3)
+
+pal <- eyedropper(n = 3, img_path = './data/20180211_094255.jpg')
+```
+
 
 ```{r read_data, include=TRUE}
 tuesdata <- tidytuesdayR::tt_load(2022, week = 35)

@@ -77,6 +77,10 @@ df_myles <- read_csv('./data/huckleberry_myles2.csv') %>%
 df_hazel <- read_csv('./data/huckleberry_hazel.csv') %>% 
   clean_names() %>% 
   mutate(name = as.factor('Hazel'))
+
+df_archie <- read_csv('./data/huckleberry_archie.csv') %>% 
+  clean_names() %>% 
+  mutate(name = as.factor('Archie'))
 ```
 
 ```{r add_hms, include=TRUE}
@@ -89,7 +93,7 @@ df_myles <- df_myles %>%
   select(date, name, type, start_time, end_time, age) %>% 
   arrange(date) %>% 
   filter(type == 'Sleep',
-         age <= 30)
+         age <= 90)
 
 df_hazel <- df_hazel %>% 
   mutate(date = lubridate::as_date(start),
@@ -100,9 +104,20 @@ df_hazel <- df_hazel %>%
   select(date, name, type, start_time, end_time, age) %>% 
   arrange(date) %>% 
   filter(type == 'Sleep',
-         age <= 30)
+         age <= 90)
 
-df_combined <- bind_rows(df_myles, df_hazel)
+df_archie <- df_archie %>% 
+  mutate(date = lubridate::as_date(start),
+         start_time = hms::as_hms(start),
+         end_time = hms::as_hms(end),
+         dob = lubridate::as_date('2023-05-25'),
+         age = date - dob) %>% 
+  select(date, name, type, start_time, end_time, age) %>% 
+  arrange(date) %>% 
+  filter(type == 'Sleep',
+         age <= 90)
+
+df_combined <- bind_rows(df_myles, df_hazel, df_archie)
 ```
 
 # Viz
@@ -116,11 +131,11 @@ camcorder::gg_record(
 ```{r viz_text, include=TRUE}
 title_text <- 'Learning to sleep is hard work'
 
-subtitle_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Myles</span> and <span style='color:#9e9ac8;font-face:bold'>Hazel's</span> sleep patterns during their first month")
+subtitle_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Myles</span>, <span style='color:#9e9ac8;font-face:bold'>Hazel</span>, & <span style='color:darkseagreen3;font-face:bold'>Archie's</span> sleep patterns during their first month")
 
 caption_text <- glue("Tidy Tuesday Week 1 (2023) #byoDATA<br>{twitter} @mickey_rafa • {github} mrafa3/tidy_tuesday<br>Source: Personal recordings from Huckleberry app")
 
-alt_text <- 'Stylized circular plot showing the sleep times of our children, Hazel and Myles, during their first month. White space indicates wake time during the day.'
+alt_text <- 'Stylized circular plot showing the sleep times of our children during their first three months. White space indicates wake time during the day (or that their parents forgot to record their sleep).'
 ```
 
 ```{r viz, include=TRUE}
@@ -135,7 +150,8 @@ alt_text <- 'Stylized circular plot showing the sleep times of our children, Haz
   coord_polar(clip = 'off') + 
   labs(alt = alt_text) + 
   scale_color_manual(values = c('Myles' = 'cornflowerblue',
-                                'Hazel' = '#9e9ac8')) + 
+                                'Hazel' = '#9e9ac8',
+                                'Archie' = 'darkseagreen3')) + 
   my.theme + 
   theme(legend.position = 'none',
         strip.text = element_blank()))
@@ -148,7 +164,7 @@ Experimenting with example by Albert Rapp...
 tib_summary_text <- tibble(
   x = 0, 
   y = 0.15, 
-  label = c("**How to read this (ch)art:** colored<br>segments represent times when<br><span style = 'color:cornflowerblue'>**Myles**</span> or <span style = 'color:#9e9ac8'>**Hazel**</span> slept during their<br>first month. Each circle represents<br>a single day, with inner circles<br>illustrating newborn days and outer<br>circles illustrating days near 30 days<br>since birth.<br><br>Data quality may have suffered due<br>to sleep quality."))
+  label = c("**How to read this (ch)art:** colored<br>segments represent times when<br><span style = 'color:cornflowerblue'>**Myles**</span>, <span style = 'color:#9e9ac8'>**Hazel**</span>, or <span style = 'color:darkseagreen3'>**Archie**</span> slept during<br>their first three months. Each circle <br>represents a single day, with inner<br>circles illustrating newborn days and<br>outer circles illustrating days near<br>90 days since birth.<br><br>Data quality may have suffered due<br>to sleep quality."))
 
 # Create text plot with geom_richtext() and theme_void()
 (text_plot <- tib_summary_text %>% 
