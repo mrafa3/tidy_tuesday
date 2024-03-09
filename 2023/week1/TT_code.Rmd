@@ -131,7 +131,7 @@ camcorder::gg_record(
 ```{r viz_text, include=TRUE}
 title_text <- 'Learning to sleep is hard work'
 
-subtitle_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Myles</span>, <span style='color:#9e9ac8;font-face:bold'>Hazel</span>, & <span style='color:darkseagreen3;font-face:bold'>Archie's</span> sleep patterns during their first month")
+subtitle_text <- glue("<span style='color:cornflowerblue;font-face:bold'>Myles</span>, <span style='color:#9e9ac8;font-face:bold'>Hazel</span>, & <span style='color:darkseagreen3;font-face:bold'>Archie's</span> sleep patterns during their first three months")
 
 caption_text <- glue("Tidy Tuesday Week 1 (2023) #byoDATA<br>{twitter} @mickey_rafa • {github} mrafa3/tidy_tuesday<br>Source: Personal recordings from Huckleberry app")
 
