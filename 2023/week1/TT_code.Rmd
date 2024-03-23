@@ -198,7 +198,7 @@ plot_circular_2 <- plot_circular +
                   plot.caption = element_textbox_simple(color="black", size=9), 
       plot.background = element_rect(fill = 'white', colour = NA)))
 plot_circular_2
-ggsave("./graphics/plot_circular_3.png", 
+ggsave("./graphics/circular_plot.png", 
        width = 10, 
        height = 6.5,
        dpi = 300)
@@ -206,7 +206,7 @@ ggsave("./graphics/plot_circular_3.png",
 
 
 ```{r save_plot, include=TRUE}
-ggsave("./graphics/circular_plot.png", plot_circular_2,
-       width = 10, height = 6.5, dpi = 300)
+#ggsave("./graphics/circular_plot.png", plot_circular_2,
+ #      width = 10, height = 6.5, dpi = 300)
 ```
 
