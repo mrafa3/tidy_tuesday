@@ -41,10 +41,10 @@ showtext::showtext_opts(dpi=300)
 ```
 
 ```{r icons, include=TRUE}
-twitter <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf099;</span>")
+#twitter <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf099;</span>")
 github <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf09b;</span>")
 #floppy <- glue("<span style='font-family:fa-solid; color:{txt}'>&#xf0c7;</span>")
-space <- glue("<span style='color:black;font-size:1px'>'</span>")
+#space <- glue("<span style='color:black;font-size:1px'>'</span>")
 ```
 
 ```{r my.theme, include=TRUE}
@@ -80,6 +80,29 @@ df <- tuesdata$wwbi_data %>%
   clean_names()
 ```
 
+```{r}
+# maybe exploring a PCA/cluster analysis of the public sector?
+#filter_text <- 'Public sector employment, as a share of formal employment'
+filter_text <- 'as a share of public paid employees'
+#filter_text <- 'Education'
+
+df %>% 
+  #filter(year == 2020) %>% 
+  group_by(country_code, indicator_code) %>%
+  slice_max(order_by = year, n = 1, with_ties = FALSE) %>%
+  ungroup() %>% 
+  inner_join(x=.,
+#             y=df_meta,
+             y=df_meta %>% filter(str_detect(indicator_name, filter_text)),
+             by='indicator_code') %>% 
+  select(-c(indicator_code, year)) %>% 
+  pivot_wider(names_from = indicator_name, values_from = value) %>% 
+  summarize(across(everything(), ~ sum(is.na(.)), .names = "na_count_{.col}")) %>% 
+  pivot_longer(everything()) %>% 
+  arrange(value)
+
+```
+
 ```{r df_summary, include=TRUE}
 df %>% 
   summary()
@@ -101,18 +124,18 @@ twitter <- glue("<span style='font-family:fa-brands; color:{txt}'>&#xf099</span"
 
 title_text <- ''
 subtitle_text <- ''
-caption_text <- glue("Tidy Tuesday Week 35 (2022)<br>{twitter} @mickey_rafa • {github} mrafa3/tidy_tuesday")
+caption_text <- glue("Tidy Tuesday Week 18 (2024)<br>{twitter} @mickey_rafa • {github} mrafa3/tidy_tuesday")
 ```
 
 ```{r viz_colors, include=TRUE}
-viz_colors <- c('Max' = '#645A7B', 'Min' = '#6ED187')
+#viz_colors <- c('Max' = '#645A7B', 'Min' = '#6ED187')
 ```
 
 
 
 ```{r save_plot, include=TRUE}
-ggsave("", ,
-       width = 10, height = 6.5, dpi = 300)
+#ggsave("", ,
+ #      width = 10, height = 6.5, dpi = 300)
 ```
 
 
