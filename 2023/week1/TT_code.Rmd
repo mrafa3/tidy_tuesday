@@ -163,8 +163,8 @@ Experimenting with example by Albert Rapp...
 # Save text data in a tibble
 tib_summary_text <- tibble(
   x = 0, 
-  y = 0.15, 
-  label = c("**How to read this (ch)art:** colored<br>segments represent times when<br><span style = 'color:cornflowerblue'>**Myles**</span>, <span style = 'color:#9e9ac8'>**Hazel**</span>, or <span style = 'color:darkseagreen3'>**Archie**</span> slept during<br>their first three months. Each circle <br>represents a single day, with inner<br>circles illustrating newborn days and<br>outer circles illustrating days near<br>90 days since birth.<br><br>Data quality may have suffered due<br>to sleep quality."))
+  y = 0, 
+  label = c("**How to read this (ch)art:** colored segments represent times when <span style = 'color:cornflowerblue'>**Myles**</span>, <span style = 'color:#9e9ac8'>**Hazel**</span>, or <span style = 'color:darkseagreen3'>**Archie**</span> slept<br>during their first three months. Each circle represents a single day, with inner circles illustrating<br>newborn days and outer circles illustrating days near 90 days since birth."))
 
 # Create text plot with geom_richtext() and theme_void()
 (text_plot <- tib_summary_text %>% 
@@ -177,23 +177,24 @@ tib_summary_text <- tibble(
     vjust = 0,
     label.colour = NA
   ) +
-  coord_cartesian(xlim = c(0, 1), ylim = c(0, 2), clip = 'off') +
+  coord_cartesian(xlim = c(0, 1), ylim = c(0, 0), clip = 'off') +
   # clip = 'off' is important for putting it together later.
   theme_void())
 ```
 
 
 ```{r add_patchwork, include=TRUE}
-plot_circular_2 <- plot_circular + 
-  text_plot + 
-  plot_layout(widths = c(0.55, 0.45)) + 
+plot_circular_2 <- text_plot / 
+  plot_circular + 
+  plot_layout(widths = c(0.55, 0.45),
+              heights = c(1, 1.5)) + 
   plot_annotation(
-    title = title_text,
-    subtitle = subtitle_text,
+    #title = title_text,
+    #subtitle = subtitle_text,
     caption = caption_text, 
     theme = theme(text = element_text(family = 'lato'),
                   plot.title = element_textbox_simple(color="black", 
-                                                      face="bold", size=22, hjust=0), 
+                                                      face="bold", size=20, hjust=0), 
                   plot.subtitle = element_textbox_simple(color="black", size=12, hjust=0), 
                   plot.caption = element_textbox_simple(color="black", size=9),
       plot.background = element_rect(fill = 'white', colour = NA)))
@@ -201,7 +202,7 @@ plot_circular_2 <- plot_circular +
 
 
 ```{r save_plot, include=TRUE}
-ggsave("./graphics/circular_plot.png", plot_circular_2,
-       width = 10, height = 6.5, dpi = 300)
+ggsave("./graphics/circular_plot.png", plot_circular,
+       width = 10, height = 10, dpi = 300)
 ```
 
